@@ -1,0 +1,2170 @@
+{
+  "passenger_demand_up": [
+    {
+      "origin": 4,
+      "destination": 7,
+      "arrival_time": 27,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 9,
+      "arrival_time": 13,
+      "num_passengers": 2
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 26,
+      "num_passengers": 2
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 8,
+      "num_passengers": 2
+    },
+    {
+      "origin": 0,
+      "destination": 4,
+      "arrival_time": 6,
+      "num_passengers": 2
+    },
+    {
+      "origin": 2,
+      "destination": 8,
+      "arrival_time": 22,
+      "num_passengers": 3
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 0,
+      "num_passengers": 3
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 9,
+      "num_passengers": 3
+    },
+    {
+      "origin": 3,
+      "destination": 6,
+      "arrival_time": 3,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 14,
+      "num_passengers": 2
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 47,
+      "num_passengers": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 38,
+      "num_passengers": 1
+    },
+    {
+      "origin": 1,
+      "destination": 9,
+      "arrival_time": 26,
+      "num_passengers": 4
+    },
+    {
+      "origin": 1,
+      "destination": 3,
+      "arrival_time": 2,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 25,
+      "num_passengers": 1
+    },
+    {
+      "origin": 5,
+      "destination": 6,
+      "arrival_time": 44,
+      "num_passengers": 1
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 34,
+      "num_passengers": 1
+    },
+    {
+      "origin": 2,
+      "destination": 3,
+      "arrival_time": 30,
+      "num_passengers": 4
+    },
+    {
+      "origin": 0,
+      "destination": 6,
+      "arrival_time": 5,
+      "num_passengers": 1
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 38,
+      "num_passengers": 1
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 22,
+      "num_passengers": 2
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 39,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 4,
+      "arrival_time": 41,
+      "num_passengers": 4
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 5,
+      "num_passengers": 3
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 0,
+      "num_passengers": 1
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 44,
+      "num_passengers": 2
+    },
+    {
+      "origin": 1,
+      "destination": 8,
+      "arrival_time": 16,
+      "num_passengers": 2
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 39,
+      "num_passengers": 3
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 43,
+      "num_passengers": 4
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 32,
+      "num_passengers": 2
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 39,
+      "num_passengers": 3
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 20,
+      "num_passengers": 2
+    },
+    {
+      "origin": 0,
+      "destination": 3,
+      "arrival_time": 26,
+      "num_passengers": 1
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 11,
+      "num_passengers": 4
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 9,
+      "num_passengers": 2
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 24,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 39,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 33,
+      "num_passengers": 2
+    },
+    {
+      "origin": 3,
+      "destination": 5,
+      "arrival_time": 37,
+      "num_passengers": 1
+    },
+    {
+      "origin": 2,
+      "destination": 7,
+      "arrival_time": 0,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 4,
+      "arrival_time": 20,
+      "num_passengers": 3
+    },
+    {
+      "origin": 0,
+      "destination": 7,
+      "arrival_time": 2,
+      "num_passengers": 3
+    },
+    {
+      "origin": 0,
+      "destination": 3,
+      "arrival_time": 29,
+      "num_passengers": 2
+    },
+    {
+      "origin": 0,
+      "destination": 8,
+      "arrival_time": 23,
+      "num_passengers": 2
+    },
+    {
+      "origin": 5,
+      "destination": 8,
+      "arrival_time": 4,
+      "num_passengers": 1
+    },
+    {
+      "origin": 5,
+      "destination": 6,
+      "arrival_time": 22,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 1,
+      "num_passengers": 1
+    },
+    {
+      "origin": 1,
+      "destination": 5,
+      "arrival_time": 24,
+      "num_passengers": 3
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 10,
+      "num_passengers": 1
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 6,
+      "num_passengers": 3
+    },
+    {
+      "origin": 1,
+      "destination": 7,
+      "arrival_time": 19,
+      "num_passengers": 4
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 3,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 12,
+      "num_passengers": 4
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 27,
+      "num_passengers": 4
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 9,
+      "num_passengers": 3
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 2,
+      "num_passengers": 1
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 19,
+      "num_passengers": 2
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 3,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 2,
+      "num_passengers": 1
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 42,
+      "num_passengers": 1
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 38,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 29,
+      "num_passengers": 3
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 31,
+      "num_passengers": 2
+    },
+    {
+      "origin": 6,
+      "destination": 9,
+      "arrival_time": 40,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 41,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 47,
+      "num_passengers": 4
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 15,
+      "num_passengers": 2
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 22,
+      "num_passengers": 1
+    },
+    {
+      "origin": 3,
+      "destination": 7,
+      "arrival_time": 28,
+      "num_passengers": 3
+    },
+    {
+      "origin": 3,
+      "destination": 5,
+      "arrival_time": 8,
+      "num_passengers": 1
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 40,
+      "num_passengers": 4
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 14,
+      "num_passengers": 4
+    },
+    {
+      "origin": 4,
+      "destination": 7,
+      "arrival_time": 43,
+      "num_passengers": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 4,
+      "num_passengers": 4
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 32,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 41,
+      "num_passengers": 4
+    },
+    {
+      "origin": 5,
+      "destination": 6,
+      "arrival_time": 13,
+      "num_passengers": 2
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 31,
+      "num_passengers": 2
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 41,
+      "num_passengers": 4
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 48,
+      "num_passengers": 1
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 46,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 14,
+      "num_passengers": 2
+    },
+    {
+      "origin": 1,
+      "destination": 4,
+      "arrival_time": 29,
+      "num_passengers": 2
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 28,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 34,
+      "num_passengers": 3
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 12,
+      "num_passengers": 4
+    },
+    {
+      "origin": 1,
+      "destination": 6,
+      "arrival_time": 34,
+      "num_passengers": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 43,
+      "num_passengers": 1
+    },
+    {
+      "origin": 6,
+      "destination": 9,
+      "arrival_time": 10,
+      "num_passengers": 2
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 23,
+      "num_passengers": 4
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 14,
+      "num_passengers": 1
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 47,
+      "num_passengers": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 10,
+      "num_passengers": 1
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 32,
+      "num_passengers": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 32,
+      "num_passengers": 3
+    },
+    {
+      "origin": 0,
+      "destination": 2,
+      "arrival_time": 49,
+      "num_passengers": 2
+    },
+    {
+      "origin": 3,
+      "destination": 4,
+      "arrival_time": 40,
+      "num_passengers": 2
+    },
+    {
+      "origin": 3,
+      "destination": 4,
+      "arrival_time": 31,
+      "num_passengers": 2
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 48,
+      "num_passengers": 1
+    },
+    {
+      "origin": 2,
+      "destination": 9,
+      "arrival_time": 47,
+      "num_passengers": 4
+    }
+  ],
+  "passenger_demand_down": [
+    {
+      "origin": 15,
+      "destination": 16,
+      "arrival_time": 19,
+      "num_passengers": 2
+    },
+    {
+      "origin": 11,
+      "destination": 13,
+      "arrival_time": 12,
+      "num_passengers": 1
+    },
+    {
+      "origin": 11,
+      "destination": 15,
+      "arrival_time": 41,
+      "num_passengers": 4
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 29,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 15,
+      "arrival_time": 31,
+      "num_passengers": 2
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 37,
+      "num_passengers": 2
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 15,
+      "num_passengers": 1
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 26,
+      "num_passengers": 1
+    },
+    {
+      "origin": 14,
+      "destination": 17,
+      "arrival_time": 47,
+      "num_passengers": 1
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 32,
+      "num_passengers": 3
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 14,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 17,
+      "arrival_time": 28,
+      "num_passengers": 3
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 40,
+      "num_passengers": 2
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 16,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 18,
+      "arrival_time": 7,
+      "num_passengers": 4
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 5,
+      "num_passengers": 4
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 1,
+      "num_passengers": 1
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 44,
+      "num_passengers": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 43,
+      "num_passengers": 4
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 48,
+      "num_passengers": 4
+    },
+    {
+      "origin": 13,
+      "destination": 19,
+      "arrival_time": 44,
+      "num_passengers": 2
+    },
+    {
+      "origin": 11,
+      "destination": 14,
+      "arrival_time": 9,
+      "num_passengers": 2
+    },
+    {
+      "origin": 12,
+      "destination": 16,
+      "arrival_time": 31,
+      "num_passengers": 4
+    },
+    {
+      "origin": 10,
+      "destination": 15,
+      "arrival_time": 2,
+      "num_passengers": 2
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 44,
+      "num_passengers": 1
+    },
+    {
+      "origin": 12,
+      "destination": 19,
+      "arrival_time": 21,
+      "num_passengers": 1
+    },
+    {
+      "origin": 14,
+      "destination": 16,
+      "arrival_time": 30,
+      "num_passengers": 2
+    },
+    {
+      "origin": 11,
+      "destination": 13,
+      "arrival_time": 28,
+      "num_passengers": 1
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 35,
+      "num_passengers": 4
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 23,
+      "num_passengers": 3
+    },
+    {
+      "origin": 13,
+      "destination": 15,
+      "arrival_time": 44,
+      "num_passengers": 1
+    },
+    {
+      "origin": 14,
+      "destination": 18,
+      "arrival_time": 18,
+      "num_passengers": 2
+    },
+    {
+      "origin": 12,
+      "destination": 16,
+      "arrival_time": 40,
+      "num_passengers": 4
+    },
+    {
+      "origin": 12,
+      "destination": 18,
+      "arrival_time": 32,
+      "num_passengers": 1
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 33,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 48,
+      "num_passengers": 1
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 1,
+      "num_passengers": 3
+    },
+    {
+      "origin": 12,
+      "destination": 15,
+      "arrival_time": 29,
+      "num_passengers": 3
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 11,
+      "num_passengers": 2
+    },
+    {
+      "origin": 12,
+      "destination": 14,
+      "arrival_time": 49,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 47,
+      "num_passengers": 4
+    },
+    {
+      "origin": 12,
+      "destination": 14,
+      "arrival_time": 35,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 19,
+      "arrival_time": 32,
+      "num_passengers": 1
+    },
+    {
+      "origin": 14,
+      "destination": 17,
+      "arrival_time": 8,
+      "num_passengers": 2
+    },
+    {
+      "origin": 12,
+      "destination": 15,
+      "arrival_time": 39,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 45,
+      "num_passengers": 4
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 23,
+      "num_passengers": 2
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 43,
+      "num_passengers": 4
+    },
+    {
+      "origin": 13,
+      "destination": 15,
+      "arrival_time": 27,
+      "num_passengers": 4
+    },
+    {
+      "origin": 10,
+      "destination": 15,
+      "arrival_time": 31,
+      "num_passengers": 4
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 7,
+      "num_passengers": 4
+    },
+    {
+      "origin": 12,
+      "destination": 14,
+      "arrival_time": 8,
+      "num_passengers": 1
+    },
+    {
+      "origin": 10,
+      "destination": 12,
+      "arrival_time": 36,
+      "num_passengers": 1
+    },
+    {
+      "origin": 11,
+      "destination": 19,
+      "arrival_time": 38,
+      "num_passengers": 4
+    },
+    {
+      "origin": 11,
+      "destination": 18,
+      "arrival_time": 38,
+      "num_passengers": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 47,
+      "num_passengers": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 39,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 16,
+      "arrival_time": 26,
+      "num_passengers": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 38,
+      "num_passengers": 4
+    },
+    {
+      "origin": 13,
+      "destination": 14,
+      "arrival_time": 44,
+      "num_passengers": 4
+    },
+    {
+      "origin": 12,
+      "destination": 18,
+      "arrival_time": 47,
+      "num_passengers": 3
+    },
+    {
+      "origin": 11,
+      "destination": 15,
+      "arrival_time": 46,
+      "num_passengers": 4
+    },
+    {
+      "origin": 12,
+      "destination": 18,
+      "arrival_time": 16,
+      "num_passengers": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 38,
+      "num_passengers": 3
+    },
+    {
+      "origin": 11,
+      "destination": 12,
+      "arrival_time": 8,
+      "num_passengers": 2
+    },
+    {
+      "origin": 11,
+      "destination": 16,
+      "arrival_time": 41,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 9,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 40,
+      "num_passengers": 1
+    },
+    {
+      "origin": 13,
+      "destination": 17,
+      "arrival_time": 24,
+      "num_passengers": 1
+    },
+    {
+      "origin": 10,
+      "destination": 13,
+      "arrival_time": 28,
+      "num_passengers": 1
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 22,
+      "num_passengers": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 6,
+      "num_passengers": 1
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 14,
+      "num_passengers": 1
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 32,
+      "num_passengers": 1
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 34,
+      "num_passengers": 1
+    },
+    {
+      "origin": 12,
+      "destination": 13,
+      "arrival_time": 9,
+      "num_passengers": 1
+    },
+    {
+      "origin": 10,
+      "destination": 15,
+      "arrival_time": 2,
+      "num_passengers": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 0,
+      "num_passengers": 3
+    },
+    {
+      "origin": 11,
+      "destination": 15,
+      "arrival_time": 17,
+      "num_passengers": 4
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 34,
+      "num_passengers": 1
+    },
+    {
+      "origin": 10,
+      "destination": 11,
+      "arrival_time": 19,
+      "num_passengers": 4
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 6,
+      "num_passengers": 1
+    },
+    {
+      "origin": 14,
+      "destination": 17,
+      "arrival_time": 27,
+      "num_passengers": 2
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 1,
+      "num_passengers": 3
+    },
+    {
+      "origin": 13,
+      "destination": 17,
+      "arrival_time": 37,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 16,
+      "arrival_time": 26,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 30,
+      "num_passengers": 4
+    },
+    {
+      "origin": 14,
+      "destination": 19,
+      "arrival_time": 20,
+      "num_passengers": 4
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 21,
+      "num_passengers": 4
+    },
+    {
+      "origin": 13,
+      "destination": 15,
+      "arrival_time": 29,
+      "num_passengers": 4
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 4,
+      "num_passengers": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 45,
+      "num_passengers": 1
+    },
+    {
+      "origin": 10,
+      "destination": 17,
+      "arrival_time": 24,
+      "num_passengers": 2
+    },
+    {
+      "origin": 10,
+      "destination": 15,
+      "arrival_time": 7,
+      "num_passengers": 1
+    },
+    {
+      "origin": 12,
+      "destination": 17,
+      "arrival_time": 16,
+      "num_passengers": 3
+    },
+    {
+      "origin": 12,
+      "destination": 16,
+      "arrival_time": 44,
+      "num_passengers": 2
+    },
+    {
+      "origin": 13,
+      "destination": 14,
+      "arrival_time": 12,
+      "num_passengers": 1
+    },
+    {
+      "origin": 12,
+      "destination": 19,
+      "arrival_time": 12,
+      "num_passengers": 3
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 23,
+      "num_passengers": 2
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 42,
+      "num_passengers": 4
+    }
+  ],
+  "freight_demand_up": [
+    {
+      "origin": 3,
+      "destination": 7,
+      "arrival_time": 16,
+      "volume": 1
+    },
+    {
+      "origin": 1,
+      "destination": 5,
+      "arrival_time": 4,
+      "volume": 1
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 22,
+      "volume": 3
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 42,
+      "volume": 3
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 28,
+      "volume": 1
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 27,
+      "volume": 3
+    },
+    {
+      "origin": 1,
+      "destination": 3,
+      "arrival_time": 20,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 5,
+      "arrival_time": 39,
+      "volume": 3
+    },
+    {
+      "origin": 2,
+      "destination": 9,
+      "arrival_time": 10,
+      "volume": 2
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 16,
+      "volume": 3
+    },
+    {
+      "origin": 1,
+      "destination": 3,
+      "arrival_time": 34,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 6,
+      "arrival_time": 15,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 35,
+      "volume": 1
+    },
+    {
+      "origin": 1,
+      "destination": 9,
+      "arrival_time": 5,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 11,
+      "volume": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 24,
+      "volume": 3
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 36,
+      "volume": 1
+    },
+    {
+      "origin": 3,
+      "destination": 7,
+      "arrival_time": 0,
+      "volume": 3
+    },
+    {
+      "origin": 2,
+      "destination": 6,
+      "arrival_time": 25,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 8,
+      "arrival_time": 26,
+      "volume": 1
+    },
+    {
+      "origin": 2,
+      "destination": 8,
+      "arrival_time": 33,
+      "volume": 3
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 9,
+      "volume": 1
+    },
+    {
+      "origin": 4,
+      "destination": 7,
+      "arrival_time": 21,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 9,
+      "arrival_time": 10,
+      "volume": 2
+    },
+    {
+      "origin": 4,
+      "destination": 9,
+      "arrival_time": 26,
+      "volume": 3
+    },
+    {
+      "origin": 4,
+      "destination": 7,
+      "arrival_time": 31,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 35,
+      "volume": 2
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 24,
+      "volume": 1
+    },
+    {
+      "origin": 4,
+      "destination": 8,
+      "arrival_time": 49,
+      "volume": 3
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 4,
+      "volume": 2
+    },
+    {
+      "origin": 0,
+      "destination": 8,
+      "arrival_time": 43,
+      "volume": 2
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 32,
+      "volume": 3
+    },
+    {
+      "origin": 2,
+      "destination": 7,
+      "arrival_time": 33,
+      "volume": 1
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 45,
+      "volume": 1
+    },
+    {
+      "origin": 4,
+      "destination": 6,
+      "arrival_time": 39,
+      "volume": 2
+    },
+    {
+      "origin": 1,
+      "destination": 2,
+      "arrival_time": 39,
+      "volume": 1
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 41,
+      "volume": 1
+    },
+    {
+      "origin": 0,
+      "destination": 3,
+      "arrival_time": 19,
+      "volume": 3
+    },
+    {
+      "origin": 1,
+      "destination": 4,
+      "arrival_time": 49,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 7,
+      "arrival_time": 11,
+      "volume": 1
+    },
+    {
+      "origin": 0,
+      "destination": 2,
+      "arrival_time": 34,
+      "volume": 1
+    },
+    {
+      "origin": 1,
+      "destination": 2,
+      "arrival_time": 28,
+      "volume": 2
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 31,
+      "volume": 2
+    },
+    {
+      "origin": 1,
+      "destination": 5,
+      "arrival_time": 49,
+      "volume": 3
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 40,
+      "volume": 2
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 32,
+      "volume": 1
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 7,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 8,
+      "arrival_time": 23,
+      "volume": 2
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 2,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 6,
+      "arrival_time": 29,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 8,
+      "arrival_time": 15,
+      "volume": 2
+    },
+    {
+      "origin": 5,
+      "destination": 7,
+      "arrival_time": 43,
+      "volume": 1
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 49,
+      "volume": 2
+    },
+    {
+      "origin": 1,
+      "destination": 9,
+      "arrival_time": 24,
+      "volume": 1
+    },
+    {
+      "origin": 0,
+      "destination": 8,
+      "arrival_time": 13,
+      "volume": 2
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 13,
+      "volume": 3
+    },
+    {
+      "origin": 4,
+      "destination": 9,
+      "arrival_time": 27,
+      "volume": 2
+    },
+    {
+      "origin": 2,
+      "destination": 9,
+      "arrival_time": 9,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 6,
+      "arrival_time": 35,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 6,
+      "arrival_time": 48,
+      "volume": 1
+    },
+    {
+      "origin": 2,
+      "destination": 5,
+      "arrival_time": 3,
+      "volume": 1
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 45,
+      "volume": 1
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 17,
+      "volume": 2
+    },
+    {
+      "origin": 6,
+      "destination": 9,
+      "arrival_time": 14,
+      "volume": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 19,
+      "volume": 1
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 0,
+      "volume": 3
+    },
+    {
+      "origin": 1,
+      "destination": 5,
+      "arrival_time": 12,
+      "volume": 2
+    },
+    {
+      "origin": 3,
+      "destination": 6,
+      "arrival_time": 17,
+      "volume": 2
+    },
+    {
+      "origin": 6,
+      "destination": 7,
+      "arrival_time": 22,
+      "volume": 2
+    },
+    {
+      "origin": 1,
+      "destination": 5,
+      "arrival_time": 10,
+      "volume": 1
+    },
+    {
+      "origin": 7,
+      "destination": 9,
+      "arrival_time": 0,
+      "volume": 3
+    },
+    {
+      "origin": 0,
+      "destination": 2,
+      "arrival_time": 35,
+      "volume": 3
+    },
+    {
+      "origin": 1,
+      "destination": 8,
+      "arrival_time": 44,
+      "volume": 2
+    },
+    {
+      "origin": 0,
+      "destination": 2,
+      "arrival_time": 1,
+      "volume": 3
+    },
+    {
+      "origin": 6,
+      "destination": 8,
+      "arrival_time": 40,
+      "volume": 3
+    },
+    {
+      "origin": 2,
+      "destination": 9,
+      "arrival_time": 32,
+      "volume": 3
+    },
+    {
+      "origin": 3,
+      "destination": 6,
+      "arrival_time": 16,
+      "volume": 3
+    },
+    {
+      "origin": 8,
+      "destination": 9,
+      "arrival_time": 34,
+      "volume": 3
+    },
+    {
+      "origin": 5,
+      "destination": 9,
+      "arrival_time": 37,
+      "volume": 2
+    },
+    {
+      "origin": 7,
+      "destination": 8,
+      "arrival_time": 3,
+      "volume": 2
+    }
+  ],
+  "freight_demand_down": [
+    {
+      "origin": 11,
+      "destination": 16,
+      "arrival_time": 10,
+      "volume": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 3,
+      "volume": 3
+    },
+    {
+      "origin": 12,
+      "destination": 13,
+      "arrival_time": 43,
+      "volume": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 19,
+      "volume": 3
+    },
+    {
+      "origin": 12,
+      "destination": 18,
+      "arrival_time": 7,
+      "volume": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 24,
+      "volume": 3
+    },
+    {
+      "origin": 11,
+      "destination": 16,
+      "arrival_time": 3,
+      "volume": 1
+    },
+    {
+      "origin": 14,
+      "destination": 15,
+      "arrival_time": 12,
+      "volume": 1
+    },
+    {
+      "origin": 12,
+      "destination": 15,
+      "arrival_time": 2,
+      "volume": 1
+    },
+    {
+      "origin": 12,
+      "destination": 14,
+      "arrival_time": 8,
+      "volume": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 47,
+      "volume": 3
+    },
+    {
+      "origin": 14,
+      "destination": 18,
+      "arrival_time": 1,
+      "volume": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 18,
+      "volume": 3
+    },
+    {
+      "origin": 10,
+      "destination": 18,
+      "arrival_time": 14,
+      "volume": 2
+    },
+    {
+      "origin": 13,
+      "destination": 17,
+      "arrival_time": 21,
+      "volume": 3
+    },
+    {
+      "origin": 12,
+      "destination": 19,
+      "arrival_time": 37,
+      "volume": 3
+    },
+    {
+      "origin": 10,
+      "destination": 14,
+      "arrival_time": 47,
+      "volume": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 47,
+      "volume": 2
+    },
+    {
+      "origin": 10,
+      "destination": 17,
+      "arrival_time": 23,
+      "volume": 2
+    },
+    {
+      "origin": 15,
+      "destination": 16,
+      "arrival_time": 17,
+      "volume": 1
+    },
+    {
+      "origin": 11,
+      "destination": 13,
+      "arrival_time": 0,
+      "volume": 3
+    },
+    {
+      "origin": 12,
+      "destination": 18,
+      "arrival_time": 22,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 6,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 21,
+      "volume": 2
+    },
+    {
+      "origin": 13,
+      "destination": 14,
+      "arrival_time": 15,
+      "volume": 3
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 8,
+      "volume": 3
+    },
+    {
+      "origin": 10,
+      "destination": 11,
+      "arrival_time": 0,
+      "volume": 1
+    },
+    {
+      "origin": 14,
+      "destination": 18,
+      "arrival_time": 20,
+      "volume": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 22,
+      "volume": 1
+    },
+    {
+      "origin": 13,
+      "destination": 18,
+      "arrival_time": 49,
+      "volume": 1
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 41,
+      "volume": 1
+    },
+    {
+      "origin": 10,
+      "destination": 17,
+      "arrival_time": 44,
+      "volume": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 34,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 16,
+      "arrival_time": 48,
+      "volume": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 23,
+      "volume": 1
+    },
+    {
+      "origin": 12,
+      "destination": 15,
+      "arrival_time": 0,
+      "volume": 2
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 20,
+      "volume": 2
+    },
+    {
+      "origin": 13,
+      "destination": 19,
+      "arrival_time": 13,
+      "volume": 2
+    },
+    {
+      "origin": 13,
+      "destination": 16,
+      "arrival_time": 23,
+      "volume": 3
+    },
+    {
+      "origin": 11,
+      "destination": 14,
+      "arrival_time": 33,
+      "volume": 2
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 29,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 12,
+      "volume": 2
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 40,
+      "volume": 1
+    },
+    {
+      "origin": 13,
+      "destination": 15,
+      "arrival_time": 43,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 28,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 26,
+      "volume": 2
+    },
+    {
+      "origin": 14,
+      "destination": 19,
+      "arrival_time": 25,
+      "volume": 1
+    },
+    {
+      "origin": 12,
+      "destination": 15,
+      "arrival_time": 39,
+      "volume": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 9,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 20,
+      "volume": 2
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 35,
+      "volume": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 24,
+      "volume": 1
+    },
+    {
+      "origin": 11,
+      "destination": 17,
+      "arrival_time": 8,
+      "volume": 3
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 30,
+      "volume": 2
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 22,
+      "volume": 2
+    },
+    {
+      "origin": 14,
+      "destination": 16,
+      "arrival_time": 8,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 35,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 14,
+      "volume": 1
+    },
+    {
+      "origin": 10,
+      "destination": 18,
+      "arrival_time": 7,
+      "volume": 3
+    },
+    {
+      "origin": 15,
+      "destination": 19,
+      "arrival_time": 22,
+      "volume": 3
+    },
+    {
+      "origin": 13,
+      "destination": 16,
+      "arrival_time": 7,
+      "volume": 1
+    },
+    {
+      "origin": 11,
+      "destination": 18,
+      "arrival_time": 18,
+      "volume": 1
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 24,
+      "volume": 3
+    },
+    {
+      "origin": 13,
+      "destination": 15,
+      "arrival_time": 30,
+      "volume": 1
+    },
+    {
+      "origin": 13,
+      "destination": 19,
+      "arrival_time": 8,
+      "volume": 1
+    },
+    {
+      "origin": 18,
+      "destination": 19,
+      "arrival_time": 38,
+      "volume": 3
+    },
+    {
+      "origin": 10,
+      "destination": 13,
+      "arrival_time": 48,
+      "volume": 1
+    },
+    {
+      "origin": 11,
+      "destination": 12,
+      "arrival_time": 20,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 23,
+      "volume": 3
+    },
+    {
+      "origin": 17,
+      "destination": 19,
+      "arrival_time": 42,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 19,
+      "arrival_time": 1,
+      "volume": 1
+    },
+    {
+      "origin": 15,
+      "destination": 17,
+      "arrival_time": 26,
+      "volume": 2
+    },
+    {
+      "origin": 16,
+      "destination": 17,
+      "arrival_time": 33,
+      "volume": 2
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 9,
+      "volume": 3
+    },
+    {
+      "origin": 17,
+      "destination": 18,
+      "arrival_time": 43,
+      "volume": 3
+    },
+    {
+      "origin": 10,
+      "destination": 11,
+      "arrival_time": 28,
+      "volume": 2
+    },
+    {
+      "origin": 14,
+      "destination": 17,
+      "arrival_time": 2,
+      "volume": 1
+    },
+    {
+      "origin": 11,
+      "destination": 14,
+      "arrival_time": 28,
+      "volume": 2
+    },
+    {
+      "origin": 11,
+      "destination": 17,
+      "arrival_time": 27,
+      "volume": 3
+    },
+    {
+      "origin": 16,
+      "destination": 18,
+      "arrival_time": 22,
+      "volume": 3
+    }
+  ]
+}

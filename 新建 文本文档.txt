@@ -1,0 +1,48 @@
+0812 电脑拷贝版本
+
+0813 添加三部分成本分别统计版本
+
+0815 
+
+
+
+
+
+simulation_generate.py
+
+```
+calculate_station_module_requirements
+
+generate_feasible_module_allocation:生成可行的调整方案
+
+simulate_with_integrated_module_system：传入染色体（染色体包含初始车头时距、初始模块配置）
+输出模块调整数量、对应的可变模块调整范围
+输出个体的三部分成本
+	return 
+```
+
+
+
+
+
+流程图
+
+步骤1：加载数据
+
+统计总的运输需求
+
+⬇️
+
+步骤2：设置评估函数
+
+```
+setup_deap_toolbox
+
+	1️⃣create_individual
+			⬇️
+	generate_individual_with_simulation（包含generate_one_direction函数）
+			⬇️
+	初始化车头时距、车辆初始模块配置、添加module_adjustments部分
+	simulate_with_integrated_module_system计算相应的module_adjustments
+
+```
