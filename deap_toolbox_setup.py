@@ -11,7 +11,6 @@ from simulation_generate import simulate_and_evaluate_individual, simulate_with_
 from re_simulation_after_m import simulate_after_module_mutation_v2
 
 # ===== 在 deap_toolbox_setup.py 顶部或合适位置 =====
-cost_cache = {}  # 仅保存“本代被评估过的个体”的成本分解
 
 def setup_deap_toolbox(parameters, global_demand_data):
     """
@@ -62,12 +61,21 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 global_demand_data["freight_demand_down"]
             )
 
-            # —— 不改染色体，只把三项成本放进缓存 ——
-            cost_cache[id(individual)] = {
+            # # —— 不改染色体，只把三项成本放进缓存 ——
+            # cost_cache[id(individual)] = {
+            #     "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
+            #     "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
+            #     "mav_transport_cost": float(cost_components["mav_transport_cost"]),
+            # }
+
+            # ==================== 修改逻辑：开始 ====================
+            # 不再写入 cost_cache，而是直接将成本数据作为个体的一个属性
+            individual.cost_components = {
                 "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
                 "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
                 "mav_transport_cost": float(cost_components["mav_transport_cost"]),
             }
+            # ==================== 修改逻辑：结束 ====================
 
             # 已经添加了未上车的等待时间成本计算，考虑是否添加更大的比例
 
@@ -84,6 +92,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
         except Exception as e:
             print(f"评估个体时出错: {e}")
+            # 对于评估失败的个体，也附上一个空的成本字典
+            individual.cost_components = {}
             return (float('inf'),), [], {}
 
 

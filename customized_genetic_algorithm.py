@@ -3,14 +3,7 @@ import random
 from deap import tools
 
 # === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
-from deap_toolbox_setup import cost_cache
 from plot_cost_stack import plot_cost_stack_from_history
-
-# 从工具箱模块拿评估期缓存（evaluate_individual 里写入）
-try:
-    from deap_toolbox_setup import cost_cache as EVAL_COST_CACHE
-except Exception:
-    EVAL_COST_CACHE = {}
 
 
 def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=None, halloffame=None,
@@ -34,7 +27,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     """
 
     # 在算法开始时清空缓存，确保每次运行都是干净的
-    cost_cache.clear()
+    # cost_cache.clear()
 
     # ===== 在 customized_genetic_algorithm.py 中（遗传主循环外侧）=====
     # === 新增：成本历史（按每代最优个体记录） ===
@@ -45,7 +38,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         # 过滤出已赋值适应度且有限的个体
         valid = [x for x in pop if x.fitness.valid and math.isfinite(x.fitness.values[0])]
         if not valid:
-            # 没有可用个体时，记 0 占位，保证代数对齐
+            # 如果没有可用的个体（例如全部不可行），记 0 占位，保证代数对齐
             for k in cost_history:
                 cost_history[k].append(0.0)
             return
@@ -53,35 +46,22 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         # 取适应度最小（更优）的个体
         best = min(valid, key=lambda x: x.fitness.values[0])
 
-        # cc = cost_cache.get(id(best))
-        #
-        # # ==================== 修正逻辑：开始 ====================
-        # if cc is None:
-        #     # 如果在缓存中找不到，说明这个最优个体是继承或克隆而来且未被重新评估
-        #     print(f"⚠️ 缓存未命中，正在重新评估第 {len(cost_history['passenger'])} 代的最优个体以获取成本构成...")
-        #
-        #     # 1. 调用评估函数，目的是触发其将成本写入缓存的副作用
-        #     toolbox.evaluate(best)
-        #
-        #     # 2. 评估执行完毕后，再次从缓存中获取成本数据
-        #     cc = cost_cache.get(id(best))
-        #
-        #     # 3. 添加一个健壮性检查，以防万一评估后缓存仍未写入
-        #     if cc is None:
-        #         print(f"❌ 严重错误：重新评估后依然无法在缓存中找到个体成本，将记为0。")
-        #         for k in cost_history:
-        #             cost_history[k].append(0.0)
-        #         return
-        # # ==================== 修正逻辑：结束 ====================
+        # ==================== 解决方案核心逻辑 ====================
+        # 直接从最优个体 best 身上读取在评估时附加的 cost_components 属性。
+        # 使用 getattr 函数可以安全地获取属性，如果属性不存在，则返回 None。
+        cc = getattr(best, 'cost_components', None)
 
-        # 从评估阶段的缓存读取三项成本（key 用 id(best)）
-        cc = cost_cache.get(id(best))
-        if cc is None:
-            # 极少发生：当代没命中缓存（例如该个体未被重新评估）
+        if cc is None or not isinstance(cc, dict):
+            # 这个后备逻辑用于处理极端情况，例如某个体因未知错误而缺少成本数据。
+            # 在正常情况下，由于所有被评估的个体都会被附加 .cost_components 属性，
+            # 所以这个分支理论上不应该被执行。
+            print(f"❌ 严重错误：在第 {len(cost_history['passenger'])} 代的最优个体身上缺少成本数据，将记为0。")
             for k in cost_history:
                 cost_history[k].append(0.0)
             return
+        # ==========================================================
 
+        # 使用从个体身上获取到的成本数据更新历史记录
         cost_history["passenger"].append(float(cc.get("passenger_waiting_cost", 0.0)))
         cost_history["freight"].append(float(cc.get("freight_waiting_cost", 0.0)))
         cost_history["mav"].append(float(cc.get("mav_transport_cost", 0.0)))
