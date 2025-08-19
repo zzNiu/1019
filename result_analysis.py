@@ -9,7 +9,7 @@ from df_schedule_construct import reconstruct_schedule_dataframe
 from plot_cost_stack import plot_cost_stack_from_history
 
 # def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None):
-def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None, cost_history=None):
+def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None, cost_history=None, results_dir=None, timestamp=None):
 
     """详细分析并保存最佳个体"""
     print(f"\n{'='*60}")
@@ -79,18 +79,24 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
                 schedule_data[direction] = pd.DataFrame()
 
         # 保存结果
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_best_individual_results(best_individual, {
-            'total_cost': total_cost,
-            'remaining_passengers': remaining_passengers,
-            'remaining_freights': remaining_freights,
-            'failure_records': failure_records,
-            'df_enriched': df_enriched,
-            'module_analysis_records': module_analysis_records,
-            'schedule_data': schedule_data,
-            'logbook': logbook,
-            'cost_history': cost_history,  # 新增：用于堆叠图
-        }, timestamp)
+        # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # 2. 修改对 save_best_individual_results 的调用，将 timestamp 传递下去
+        save_best_individual_results(
+            best_individual=best_individual,
+            simulation_results={
+                'total_cost': total_cost,
+                'remaining_passengers': remaining_passengers,
+                'remaining_freights': remaining_freights,
+                'failure_records': failure_records,
+                'df_enriched': df_enriched,
+                'module_analysis_records': module_analysis_records,
+                'schedule_data': schedule_data,
+                'logbook': logbook,
+                'cost_history': cost_history,
+            },
+            results_dir=results_dir,  # <-- 传递目录
+            timestamp=timestamp  # <-- 新增：传递时间戳
+        )
 
         return True
 
@@ -101,13 +107,13 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
         return False
 
 
-def save_best_individual_results(best_individual, simulation_results, timestamp):
+def save_best_individual_results(best_individual, simulation_results, results_dir, timestamp):
     """保存最佳个体的详细结果"""
     print(f"\n💾 保存最佳个体结果...")
 
-    # 创建结果目录
-    results_dir = f"best_solution_{timestamp}"
-    os.makedirs(results_dir, exist_ok=True)
+    # # 创建结果目录
+    # results_dir = f"best_solution_{timestamp}"
+    # os.makedirs(results_dir, exist_ok=True)
 
     try:
         # 1. 保存个体基本信息
@@ -193,17 +199,17 @@ def save_best_individual_results(best_individual, simulation_results, timestamp)
                 print(f"  ⚠️ 生成平滑成本进化曲线失败: {e}")
 
         # 6. 生成成本构成堆叠图（按每代最优个体）
-        try:
-            cost_history = simulation_results.get('cost_history', None)
-            if cost_history and all(k in cost_history for k in ("passenger", "freight", "mav")):
-                print(f"  🎨 生成成本构成堆叠图...")
-                stack_path = f"{results_dir}/成本构成堆叠图.png"
-                plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path=stack_path)
-                print(f"  ✅ 成本构成堆叠图已保存到: {stack_path}")
-            else:
-                print("  ℹ️ 未提供 cost_history 或字段不全，跳过生成成本构成堆叠图。")
-        except Exception as e:
-            print(f"  ⚠️ 生成成本构成堆叠图失败: {e}")
+        # try:
+        #     cost_history = simulation_results.get('cost_history', None)
+        #     if cost_history and all(k in cost_history for k in ("passenger", "freight", "mav")):
+        #         print(f"  🎨 生成成本构成堆叠图...")
+        #         stack_path = f"{results_dir}/成本构成堆叠图.png"
+        #         plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path=stack_path)
+        #         print(f"  ✅ 成本构成堆叠图已保存到: {stack_path}")
+        #     else:
+        #         print("  ℹ️ 未提供 cost_history 或字段不全，跳过生成成本构成堆叠图。")
+        # except Exception as e:
+        #     print(f"  ⚠️ 生成成本构成堆叠图失败: {e}")
 
         # # 生成详细的甘特图
         # try:

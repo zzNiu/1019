@@ -285,10 +285,10 @@ class SmoothCostPlotter:
             improvement_pct = (total_improvement / self.min_costs[0] * 100) if self.min_costs[0] > 0 else 0
             
             stats_text = f"""统计信息:
-总代数: {len(self.generations)}
-初始成本: {self.min_costs[0]:.2f}
-最终成本: {self.min_costs[-1]:.2f}
-总改进: {total_improvement:.2f} ({improvement_pct:.1f}%)"""
+                                    总代数: {len(self.generations)}
+                                    初始成本: {self.min_costs[0]:.2f}
+                                    最终成本: {self.min_costs[-1]:.2f}
+                                    总改进: {total_improvement:.2f} ({improvement_pct:.1f}%)"""
             
             plt.text(0.02, 0.98, stats_text, transform=plt.gca().transAxes, 
                     fontsize=10, verticalalignment='top', 

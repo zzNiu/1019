@@ -37,5 +37,6 @@ def plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", sa
 
     plt.tight_layout()
     plt.savefig(save_path, bbox_inches="tight")
+    plt.show()
     plt.close(fig)
     print(f"✅ 成本构成堆叠图已保存: {save_path}")

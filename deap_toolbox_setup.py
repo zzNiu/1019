@@ -270,6 +270,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
             print("\U0001f501 开始部分重仿真以更新变异后个体的适应度与调整范围...")
 
             try:
+                # 1. 接收从重仿真函数返回的、包含详细成本的 simulation_results
                 updated_individual, simulation_results = simulate_after_module_mutation_v2(
                     individual, parameters, global_demand_data,
                     global_demand_data["passenger_demand_up"],
@@ -279,22 +280,70 @@ def setup_deap_toolbox(parameters, global_demand_data):
                     mutated_direction, mutated_vehicle_id, mutated_station_id
                 )
 
-                individual = updated_individual
-                failure_records = simulation_results["failure_records"]
+                # ==================== 修改/新增逻辑：开始 ====================
+                # 2. 从 simulation_results 中提取最准确的总成本和详细成本
+                total_cost = simulation_results["post_mutation_cost"]
+                cost_components = simulation_results["cost_components"]
                 module_analysis_records = simulation_results["module_analysis_records"]
-                total_cost = simulation_results["pre_mutation_cost"] + simulation_results["post_mutation_cost"]
+                failure_records = simulation_results["failure_records"]
 
+                # ==================== 解决方案核心逻辑：开始 ====================
+                # 为了实现“就地修改”，我们不能直接用 individual = updated_individual
+                # 而是要清空原始 individual 的内容，然后用新个体的内容填充它。
+
+                # 1. 清空原始 individual 字典的内容
+                individual.clear()
+                # 2. 将优化后的克隆体 updated_individual 的所有内容复制过来
+                individual.update(updated_individual)
+
+                # 3. 现在，在原始 individual 对象上附加新的属性
                 individual.fitness.values = (total_cost,)
-                individual["adjustment_ranges"] = module_analysis_records
-                individual["failure_records"] = failure_records
+                individual.cost_components = cost_components
+                individual.adjustment_ranges = module_analysis_records
+                individual.failure_records = failure_records
+                # ==================== 解决方案核心逻辑：结束 ====================
 
-                print(f"✅ 个体部分重仿真成功，适应度: {total_cost}")
+                print(f"✅ 个体部分重仿真及评估成功，新适应度: {total_cost}")
+                # ==================== 修改/新增逻辑：结束 ====================
 
             except Exception as e:
                 print(f"❌ 个体部分重仿真失败: {e}")
                 individual.fitness.values = (float("inf"),)
+                # 评估失败时，也附上一个空的成本字典
+                individual.cost_components = {}
 
         return (individual,)
+
+        # elif module_adjustment_changed:
+        #     print('中间站点模块调整 变异')
+        #     print("\U0001f501 开始部分重仿真以更新变异后个体的适应度与调整范围...")
+        #
+        #     try:
+        #         updated_individual, simulation_results = simulate_after_module_mutation_v2(
+        #             individual, parameters, global_demand_data,
+        #             global_demand_data["passenger_demand_up"],
+        #             global_demand_data["passenger_demand_down"],
+        #             global_demand_data["freight_demand_up"],
+        #             global_demand_data["freight_demand_down"],
+        #             mutated_direction, mutated_vehicle_id, mutated_station_id
+        #         )
+        #
+        #         individual = updated_individual
+        #         failure_records = simulation_results["failure_records"]
+        #         module_analysis_records = simulation_results["module_analysis_records"]
+        #         total_cost = simulation_results["pre_mutation_cost"] + simulation_results["post_mutation_cost"]
+        #
+        #         individual.fitness.values = (total_cost,)
+        #         individual["adjustment_ranges"] = module_analysis_records
+        #         individual["failure_records"] = failure_records
+        #
+        #         print(f"✅ 个体部分重仿真成功，适应度: {total_cost}")
+        #
+        #     except Exception as e:
+        #         print(f"❌ 个体部分重仿真失败: {e}")
+        #         individual.fitness.values = (float("inf"),)
+        #
+        # return (individual,)
 
     # 变异后更新发车时间
     def recalculate_arrival_times(individual, direction):

@@ -1,5 +1,5 @@
 # re_simulation_after_mutate.py
-from simulation_generate import IntegratedBusModuleSystem, collect_vehicle_info
+from simulation_generate import IntegratedBusModuleSystem, collect_vehicle_info, simulate_and_evaluate_individual
 import copy
 import pandas as pd
 import uuid
@@ -147,19 +147,53 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
         max_simulation_time, parameters
     )
 
-    post_mutation_cost += unserved_cost
+    # post_mutation_cost += unserved_cost
 
-    # 更新结果
-    simulation_results["post_mutation_cost"] = post_mutation_cost
-    simulation_results["total_cost_increment"] = post_mutation_cost - pre_mutation_cost
-    simulation_results["df_enriched"] = pd.DataFrame(simulation_results["df_enriched"])
+    # ==================== 修改/新增逻辑：开始 ====================
+    print("🔄 正在对更新后的个体进行最终的确定性评估以获取准确成本构成...")
 
-    print(f"\n ✅ 智能重仿真完成")
+    # 对局部变异后最终确定的 updated_individual，调用一次完整的、确定性的评估函数
+    # 这将确保我们获得与新基因完全匹配的总成本和详细成本构成
+    (
+        _,  # vehicle_schedule
+        final_total_cost,
+        _,  # remaining_passengers
+        _,  # remaining_freights
+        failure_records,  # failure_records
+        _,  # df_enriched
+        final_module_analysis_records,
+        final_cost_components
+    ) = simulate_and_evaluate_individual(
+        updated_individual, parameters, global_demand_data,
+        passenger_demand_up, passenger_demand_down,
+        freight_demand_up, freight_demand_down
+    )
+
+    # 使用这次评估得到的、最准确的结果来更新 simulation_results
+    simulation_results["post_mutation_cost"] = final_total_cost  # 使用更精确的总成本
+    simulation_results["module_analysis_records"] = final_module_analysis_records
+    simulation_results["failure_records"].extend(failure_records) # 合并失败记录
+    simulation_results["cost_components"] = final_cost_components # <--- 最关键的新增返回数据
+
+    print(f"\n ✅ 智能重仿真及最终评估完成")
     print(f"   💰 变异前成本: {pre_mutation_cost:.2f}")
-    print(f"   💰 变异后成本: {post_mutation_cost:.2f}")
-    print(f"   📊 成本变化: {simulation_results['total_cost_increment']:.2f}")
+    print(f"   💰 变异后精确成本: {final_total_cost:.2f}")
 
+    # 返回更新后的个体和包含了详细成本的仿真结果
     return updated_individual, simulation_results
+    # ==================== 修改/新增逻辑：结束 ====================
+
+    # # 更新结果
+    # simulation_results["post_mutation_cost"] = post_mutation_cost
+    # simulation_results["total_cost_increment"] = post_mutation_cost - pre_mutation_cost
+    # simulation_results["df_enriched"] = pd.DataFrame(simulation_results["df_enriched"])
+    #
+    # print(f"\n ✅ 智能重仿真完成")
+    # print(f"   💰 变异前成本: {pre_mutation_cost:.2f}")
+    # print(f"   💰 变异后成本: {post_mutation_cost:.2f}")
+    # print(f"   📊 成本变化: {simulation_results['total_cost_increment']:.2f}")
+    #
+    # return updated_individual, simulation_results
 
 
 # 使用原始调度计划仿真车辆（变异前车辆使用此方法）

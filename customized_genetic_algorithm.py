@@ -2,6 +2,9 @@ import math
 import random
 from deap import tools
 
+import os  # <--- 新增导入
+import matplotlib # <--- 新增导入
+
 # === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
 from plot_cost_stack import plot_cost_stack_from_history
 
@@ -243,8 +246,9 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         else:
             gen_min = gen_avg = gen_max = float('nan')
 
-        logbook.record(gen=gen, nevals=len(offspring),
-                       avg=gen_avg, min=gen_min, max=gen_max)
+        logbook.record(gen=gen, nevals=len(offspring), avg=gen_avg, min=gen_min, max=gen_max)
+
+
 
         # === 新增：记录本代最优个体的成本构成 ===
         record_best_cost(population)
@@ -254,11 +258,17 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     print('进化完成')
 
-    # === 新增：出图（文件默认名：成本构成堆叠图.png） ===
-    try:
-        plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path="best_solution_20250814_144416/成本构成堆叠图.png")
-    except Exception as e:
-        print(f"绘制成本堆叠图失败：{e}")
+    # # === 新增：出图（文件默认名：成本构成堆叠图.png） ===
+    # try:
+    #
+    #     print(f"开始绘制成本堆叠图")
+    #
+    #     plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path="best_solution_20250814_144416/成本构成堆叠图.png")
+    #
+    #     print(f"绘制成本堆叠图完成")
+    #
+    # except Exception as e:
+    #     print(f"绘制成本堆叠图失败：{e}")
 
     return population, logbook, cost_history
 
@@ -266,7 +276,8 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max_modules,
                                             toolbox, cxpb, mutpb, ngen,
                                             headway_range=(3, 20), stats=None, halloffame=None,
-                                            parameters=None, global_demand_data=None, verbose=True):
+                                            parameters=None, global_demand_data=None, verbose=True,
+                                            results_dir=None): # <--- 1. 新增 results_dir 参数):
     """
     运行完整的遗传算法，包括初始种群生成
 
@@ -329,6 +340,30 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
         global_demand_data=global_demand_data,
         verbose=verbose
     )
+
+    print("cost_history:", cost_history)
+
+    # ==================== 新增逻辑：开始 ====================
+    # 在遗传算法运行结束后，直接绘制成本构成堆叠图
+    if results_dir:
+        print("\n--- 正在绘制成本构成进化堆叠图 ---")
+        try:
+            # 确保在绘图前设置中文字体，以防乱码
+            matplotlib.rcParams['font.family'] = 'SimHei'
+            matplotlib.rcParams['axes.unicode_minus'] = False
+
+            # 定义图表的完整保存路径
+            save_path = os.path.join(results_dir, "成本构成堆叠图.png")
+
+            # 调用绘图函数
+            plot_cost_stack_from_history(cost_history, title="成本构成进化堆叠图", save_path=save_path)
+
+            print(f"✅ 成本构成堆叠图已成功保存到: {save_path}")
+        except Exception as e:
+            print(f"❌ 绘制成本构成堆叠图时发生错误: {e}")
+    else:
+        print("\n--- 未提供结果目录 (results_dir)，跳过绘制成本构成堆叠图 ---")
+    # ==================== 新增逻辑：结束 ====================
 
     if verbose:
         print("\n=== 遗传算法运行完成 ===")
