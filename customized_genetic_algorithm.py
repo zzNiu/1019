@@ -33,6 +33,9 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     :return: (final population, logbook)
     """
 
+    # 在算法开始时清空缓存，确保每次运行都是干净的
+    cost_cache.clear()
+
     # ===== 在 customized_genetic_algorithm.py 中（遗传主循环外侧）=====
     # === 新增：成本历史（按每代最优个体记录） ===
     cost_history = {"passenger": [], "freight": [], "mav": []}
@@ -49,6 +52,27 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
         # 取适应度最小（更优）的个体
         best = min(valid, key=lambda x: x.fitness.values[0])
+
+        # cc = cost_cache.get(id(best))
+        #
+        # # ==================== 修正逻辑：开始 ====================
+        # if cc is None:
+        #     # 如果在缓存中找不到，说明这个最优个体是继承或克隆而来且未被重新评估
+        #     print(f"⚠️ 缓存未命中，正在重新评估第 {len(cost_history['passenger'])} 代的最优个体以获取成本构成...")
+        #
+        #     # 1. 调用评估函数，目的是触发其将成本写入缓存的副作用
+        #     toolbox.evaluate(best)
+        #
+        #     # 2. 评估执行完毕后，再次从缓存中获取成本数据
+        #     cc = cost_cache.get(id(best))
+        #
+        #     # 3. 添加一个健壮性检查，以防万一评估后缓存仍未写入
+        #     if cc is None:
+        #         print(f"❌ 严重错误：重新评估后依然无法在缓存中找到个体成本，将记为0。")
+        #         for k in cost_history:
+        #             cost_history[k].append(0.0)
+        #         return
+        # # ==================== 修正逻辑：结束 ====================
 
         # 从评估阶段的缓存读取三项成本（key 用 id(best)）
         cc = cost_cache.get(id(best))
@@ -118,7 +142,12 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                     toolbox.mutate(mutant, parameters, global_demand_data)
                 else:
                     toolbox.mutate(mutant, parameters, global_demand_data)
-                del mutant.fitness.values
+
+                # ==================== 修改/新增逻辑：开始 ====================
+                mutant.mutated = True  # 为变异后的个体打上标记
+                # ==================== 修改/新增逻辑：结束 ====================
+
+                # del mutant.fitness.values
                 # 清除调整范围信息，因为个体已经改变
                 if hasattr(mutant, 'adjustment_ranges'):
                     delattr(mutant, 'adjustment_ranges')
@@ -189,9 +218,20 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 
                 ind.fitness.values = fit
 
+            # ==================== 修改/新增逻辑：开始 ====================
             else:
+                # 检查个体是否有 'mutated' 标记
+                if hasattr(ind, 'mutated') and ind.mutated:
+                    print(f"个体 {i + 1} 已在变异中更新并评估")
+                    # 清除标记，以免影响下一代
+                    del ind.mutated
+                else:
+                    print(f"个体 {i + 1} 直接继承母代")
+            # ==================== 修改/新增逻辑：结束 ====================
 
-                print(f"个体 {i + 1} 直接继承母代")
+            # else:
+            #
+            #     print(f"个体 {i + 1} 直接继承母代")
 
         # 更新名人堂
         if halloffame is not None:

@@ -238,6 +238,11 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
     total_passenger_waiting_time_cost = 0
     total_freight_waiting_time_cost = 0
 
+    # ==================== 新增逻辑：开始 ====================
+    total_served_passengers = 0
+    total_served_freight = 0
+    # ==================== 新增逻辑：结束 ====================
+
     max_simulation_time = 0
 
     # 主仿真循环
@@ -471,6 +476,12 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
 
                 # print(f"    上车: 乘客{boarded_p}, 货物{boarded_f}")
 
+                # ==================== 新增逻辑：开始 ====================
+                # 累加本站上车数量到总服务数量
+                total_served_passengers += boarded_p
+                total_served_freight += boarded_f
+                # ==================== 新增逻辑：结束 ====================
+
                 # 9. 累计等待时间成本
                 total_passenger_waiting_time_cost += served_passenger_waiting_time
                 total_freight_waiting_time_cost += served_freight_waiting_time
@@ -578,9 +589,9 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                         waiting_time = max_simulation_time - t
                         unserved_freight_waiting_cost += remaining_f * waiting_time
 
-    # 计算总成本
-    total_passenger_waiting_time_cost += unserved_passenger_waiting_cost
-    total_freight_waiting_time_cost += unserved_freight_waiting_cost
+    # # 计算总成本
+    # total_passenger_waiting_time_cost += unserved_passenger_waiting_cost
+    # total_freight_waiting_time_cost += unserved_freight_waiting_cost
 
     passenger_waiting_cost = total_passenger_waiting_time_cost * parameters["passenger_waiting_cost"]
     freight_waiting_cost = total_freight_waiting_time_cost * parameters["freight_waiting_cost"]
@@ -633,8 +644,11 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
             for t in a_matrix_f_down[s][s_dest]:
                 remaining_freights += a_matrix_f_down[s][s_dest][t]
 
+    # ==================== 新增逻辑：开始 ====================
     print(f"✅ 仿真完成 - 总成本: {total_cost:.2f}")
+    print(f"   服务乘客: {total_served_passengers}, 服务货物: {total_served_freight}")
     print(f"   剩余乘客: {remaining_passengers}, 剩余货物: {remaining_freights}")
+    # ==================== 新增逻辑：结束 ====================
 
     df_enriched = pd.DataFrame(df_enriched)
 
@@ -872,6 +886,7 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
     # 计算成本、剩余需求等... (此部分与原函数一致)
     unserved_passenger_waiting_cost = 0
     unserved_freight_waiting_cost = 0
+
     for a_matrix_p in [a_matrix_p_up, a_matrix_p_down]:
         for s in a_matrix_p:
             for s_dest in a_matrix_p[s]:
@@ -889,10 +904,12 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                         waiting_time = max_simulation_time - t
                         unserved_freight_waiting_cost += remaining_f * waiting_time
 
-    total_passenger_waiting_time_cost += unserved_passenger_waiting_cost
-    total_freight_waiting_time_cost += unserved_freight_waiting_cost
+    # total_passenger_waiting_time_cost += unserved_passenger_waiting_cost
+    # total_freight_waiting_time_cost += unserved_freight_waiting_cost
+
     passenger_waiting_cost = total_passenger_waiting_time_cost * parameters["passenger_waiting_cost"]
     freight_waiting_cost = total_freight_waiting_time_cost * parameters["freight_waiting_cost"]
+
     modular_bus_cost = 0
     for direction in ["up", "down"]:
         vehicle_dispatch = individual[direction]["vehicle_dispatch"]

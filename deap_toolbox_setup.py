@@ -2,6 +2,7 @@
 from deap import base, creator, tools
 
 import random
+import copy
 
 # 导入重构后的遗传算法函数
 from generate_individual_with_simulation import generate_individual_with_simulation
@@ -245,7 +246,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
                 # 4. 更新适应度和失败记录
                 individual.fitness.values = (total_cost,)
-                individual["adjustment_ranges"] = module_analysis_records
+                # individual["adjustment_ranges"] = module_analysis_records
                 individual["failure_records"] = failure_records
 
                 print(f"✅ 个体仿真成功，适应度: {total_cost}")
@@ -332,6 +333,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
     # toolbox.register("mate", lambda ind1, ind2, params, global_data: (ind1, ind2))  # 占位符
 
     toolbox.register("mutate", intelligent_mutate)  # 占位符
-    toolbox.register("clone", lambda ind: creator.Individual(ind.copy()) if hasattr(creator, 'Individual') else ind.copy())
+    # toolbox.register("clone", lambda ind: creator.Individual(ind.copy()) if hasattr(creator, 'Individual') else ind.copy())
+    # 改为深拷贝
+    toolbox.register("clone", lambda ind: copy.deepcopy(ind))
 
     return toolbox
