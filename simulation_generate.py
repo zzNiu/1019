@@ -929,7 +929,7 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
         "mav_transport_cost": float(modular_bus_cost)
     }
 
-    print('individual.cost_components:', cost_components)
+    # print('individual.cost_components:', cost_components)
 
     remaining_passengers = 0
     remaining_freights = 0

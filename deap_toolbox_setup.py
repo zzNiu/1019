@@ -114,6 +114,12 @@ def setup_deap_toolbox(parameters, global_demand_data):
             tuple: (变异后的个体,)
         """
 
+        # ==================== 核心修正：开始 ====================
+        # 从个体自身获取 adjustment_ranges，而不是依赖函数参数传递
+        # 使用 .get() 方法可以安全地处理个体可能没有此属性的情况
+        adjustment_ranges = individual.get("adjustment_ranges")
+        # ==================== 核心修正：结束 ====================
+
         headway_changed = False
         initial_allocation_changed = False
         module_adjustment_changed = False
@@ -147,6 +153,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 # 已经更新了修改的部分 需要完整更新染色体
                 initial_allocation_changed = True
 
+                print('初始模块配置变异')
+
         # === 车头时距变异 ===
         elif mutate_type == 1:
 
@@ -162,6 +170,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 individual[direction]["vehicle_dispatch"][vehicle_id]["headway"] = new_hw
                 recalculate_arrival_times(individual, direction)
                 headway_changed = True
+
+                print('车头时距变异')
 
         # === 模块调整变异 ===
         elif mutate_type == 2:
@@ -180,6 +190,14 @@ def setup_deap_toolbox(parameters, global_demand_data):
                             p_range = adjustment_ranges[direction][vehicle_id][station_id].get("passenger_modules", {})
                             f_range = adjustment_ranges[direction][vehicle_id][station_id].get("freight_modules", {})
 
+                            # ==================== 核心修正 ====================
+                            # 在赋值前，确保该站点的字典路径存在
+                            # 如果车辆的调整计划中没有这个站点（无论是最后一个还是中间的），
+                            # 就为它创建一个空的字典档案。
+                            if station_id not in individual[direction]["module_adjustments"][vehicle_id]:
+                                individual[direction]["module_adjustments"][vehicle_id][station_id] = {}
+                            # =================================================
+
                             mutated = False
                             if p_range:
                                 new_delta_p = mutate_within_bounds(p_range)
@@ -196,6 +214,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
                                 mutated_direction = direction
                                 mutated_vehicle_id = vehicle_id
                                 mutated_station_id = station_id
+
+                                print('模块调整变异')
 
         # === 在变异结束后统一判断和更新染色体 ===
         if headway_changed or initial_allocation_changed:
@@ -260,6 +280,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
                 # 4. 更新适应度和失败记录
                 individual.fitness.values = (total_cost,)
+                individual.cost_components = cost_components
                 # individual["adjustment_ranges"] = module_analysis_records
                 individual["failure_records"] = failure_records
 
@@ -377,8 +398,14 @@ def setup_deap_toolbox(parameters, global_demand_data):
             int: 在[min, max]范围内的随机调整量
         """
 
-        min_val = range_info["min"]
-        max_val = range_info["max"]
+        # 从 'delta_range' 元组中提取变化的下限和上限
+        min_val, max_val = range_info["delta_range"]
+
+        print('min_val:', min_val)
+        print('max_val:', max_val)
+
+        # min_val = range_info["min"]
+        # max_val = range_info["max"]
 
         # 直接在范围内随机生成调整量
         return random.randint(min_val, max_val)
