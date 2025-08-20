@@ -70,11 +70,13 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
             # ==================== 修改逻辑：开始 ====================
             # 不再写入 cost_cache，而是直接将成本数据作为个体的一个属性
+            print('成本写入染色体')
             individual.cost_components = {
                 "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
                 "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
                 "mav_transport_cost": float(cost_components["mav_transport_cost"]),
             }
+            print('individual.cost_components:', individual.cost_components)
             # ==================== 修改逻辑：结束 ====================
 
             # 已经添加了未上车的等待时间成本计算，考虑是否添加更大的比例
@@ -122,6 +124,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
         # 1. 随机选择一种变异类型：0=初始模块配置，1=车头时距，2=模块调整
         mutate_type = random.randint(0, 2)
 
+        print('mutate_type:', mutate_type)
+
         if mutate_type == 0:
             # === 初始模块配置变异 ===
             direction = random.choice(["up", "down"])
@@ -160,7 +164,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 headway_changed = True
 
         # === 模块调整变异 ===
-        else:
+        elif mutate_type == 2:
             # === 模块调整变异 ===
             if adjustment_ranges:
                 direction = random.choice(["up", "down"])
@@ -266,6 +270,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 individual.fitness.values = (float("inf"),)
 
         elif module_adjustment_changed:
+
             print('中间站点模块调整 变异')
             print("\U0001f501 开始部分重仿真以更新变异后个体的适应度与调整范围...")
 

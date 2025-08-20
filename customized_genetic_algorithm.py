@@ -90,6 +90,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     # 记录初始种群评估结果
     feasible = [ind.fitness.values[0] for ind in population if math.isfinite(ind.fitness.values[0])]
+
     if feasible:
         gen_min = min(feasible)
         gen_avg = sum(feasible) / len(feasible)
@@ -206,10 +207,16 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 # 检查个体是否有 'mutated' 标记
                 if hasattr(ind, 'mutated') and ind.mutated:
                     print(f"个体 {i + 1} 已在变异中更新并评估")
+                    print('individual.cost_components:', ind.cost_components)
+                    print('fit_value:', ind.fitness)
+
                     # 清除标记，以免影响下一代
                     del ind.mutated
                 else:
                     print(f"个体 {i + 1} 直接继承母代")
+                    print('individual.cost_components:', ind.cost_components)
+                    print('fit_value:', ind.fitness)
+
             # ==================== 修改/新增逻辑：结束 ====================
 
             # else:
@@ -247,8 +254,6 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
             gen_min = gen_avg = gen_max = float('nan')
 
         logbook.record(gen=gen, nevals=len(offspring), avg=gen_avg, min=gen_min, max=gen_max)
-
-
 
         # === 新增：记录本代最优个体的成本构成 ===
         record_best_cost(population)

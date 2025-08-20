@@ -174,6 +174,7 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
     simulation_results["module_analysis_records"] = final_module_analysis_records
     simulation_results["failure_records"].extend(failure_records) # 合并失败记录
     simulation_results["cost_components"] = final_cost_components # <--- 最关键的新增返回数据
+    print("cost_components：", simulation_results["cost_components"])
 
     print(f"\n ✅ 智能重仿真及最终评估完成")
     print(f"   💰 变异前成本: {pre_mutation_cost:.2f}")

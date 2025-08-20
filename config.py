@@ -56,7 +56,7 @@ parameters = {
     "num_freight_requests": NUM_FREIGHTS,  # 示例值
 
     'cxpb': 0.7,  # 交叉概率
-    'mutpb': 0.3,  # 变异概率
+    'mutpb': 0.6,  # 变异概率
 
     'C_F': 2.049,
     'C_V': 5.56,
