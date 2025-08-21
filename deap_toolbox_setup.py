@@ -215,7 +215,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                                 mutated_vehicle_id = vehicle_id
                                 mutated_station_id = station_id
 
-                                print('模块调整变异')
+                                print('模块调整变异', '变异车辆：', vehicle_id, '变异站点：', station_id)
 
         # === 在变异结束后统一判断和更新染色体 ===
         if headway_changed or initial_allocation_changed:
@@ -397,6 +397,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
         Returns:
             int: 在[min, max]范围内的随机调整量
         """
+
+        print("delta_range:", range_info["delta_range"])
 
         # 从 'delta_range' 元组中提取变化的下限和上限
         min_val, max_val = range_info["delta_range"]

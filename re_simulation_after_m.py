@@ -237,8 +237,12 @@ def simulate_vehicle_with_original_plan(vehicle, individual, parameters,
             arrival_time += parameters["t_s_s1"]
 
         # 应用原始模块调整方案
-        delta_p = original_adjustments.get(station_id, {}).get("delta_p", 0)
-        delta_f = original_adjustments.get(station_id, {}).get("delta_f", 0)
+
+        # delta_p = original_adjustments.get(station_id, {}).get("delta_p", 0)
+        # delta_f = original_adjustments.get(station_id, {}).get("delta_f", 0)
+
+        delta_p = original_adjustments[station_id]["delta_p"]
+        delta_f = original_adjustments[station_id]["delta_f"]
 
         adjusted_p_modules = current_p_modules + delta_p
         adjusted_f_modules = current_f_modules + delta_f
@@ -255,9 +259,11 @@ def simulate_vehicle_with_original_plan(vehicle, individual, parameters,
                 "type": "infeasible_original_plan",
                 "message": f"原始调度方案不可行"
             })
+            print('不可行 提前return了')
             return float('inf'), {"last_departure_time": arrival_time}
 
         # 执行站点仿真
+        print('执行仿真')
         station_cost, station_state = execute_station_simulation_core(
             station_id, arrival_time, onboard_passengers, onboard_freight,
             adjusted_p_modules, adjusted_f_modules,
@@ -265,13 +271,13 @@ def simulate_vehicle_with_original_plan(vehicle, individual, parameters,
             station_module_stock, delta_p, delta_f
         )
 
+        print('计算相关成本')
         total_cost += station_cost
         current_p_modules = adjusted_p_modules
         current_f_modules = adjusted_f_modules
 
         # 记录详细信息
-        record_station_details(simulation_results, global_vid, station_id, direction,
-                               arrival_time, station_state, "original_plan")
+        record_station_details(simulation_results, global_vid, station_id, direction, arrival_time, station_state, "original_plan")
 
     return total_cost, {"last_departure_time": arrival_time}
 
