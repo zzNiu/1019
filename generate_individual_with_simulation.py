@@ -122,6 +122,7 @@ def generate_individual_with_simulation(num_vehicles, max_modules, headway_range
                 }
 
             # 提取调整范围信息
+            # print('提取调整范围信息')
             if 'adjustment_ranges' in analysis:
                 adjustment_ranges[direction][vehicle_id][station_id] = {
                     "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],

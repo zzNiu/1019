@@ -75,7 +75,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     # 初始种群评估 Evaluate initial population
 
-    print('----进入遗传算法 步骤3： 初始种群评估----')
+    print('----进入遗传算法 步骤3: 初始种群评估----')
     i = 1
     for ind in population:
         print(f'第 {i} 个个体')

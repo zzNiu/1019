@@ -61,13 +61,6 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 global_demand_data["freight_demand_down"]
             )
 
-            # # —— 不改染色体，只把三项成本放进缓存 ——
-            # cost_cache[id(individual)] = {
-            #     "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
-            #     "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
-            #     "mav_transport_cost": float(cost_components["mav_transport_cost"]),
-            # }
-
             # ==================== 修改逻辑：开始 ====================
             # 不再写入 cost_cache，而是直接将成本数据作为个体的一个属性
             print('成本写入染色体')
@@ -254,16 +247,16 @@ def setup_deap_toolbox(parameters, global_demand_data):
                     # 'suggested_next_allocation' 是仿真中为下一站实际决定的模块数
                     if 'suggested_next_allocation' in analysis:
                         suggested = analysis['suggested_next_allocation']
-                        current_p = analysis['station_info']['current_p_modules']
-                        current_f = analysis['station_info']['current_f_modules']
+                        # current_p = analysis['station_info']['current_p_modules']
+                        # current_f = analysis['station_info']['current_f_modules']
 
-                        # 计算并记录实际发生的模块数量变化
-                        delta_p = suggested['passenger_modules'] - current_p
-                        delta_f = suggested['freight_modules'] - current_f
+                        # # 计算并记录实际发生的模块数量变化
+                        # delta_p = suggested['passenger_modules'] - current_p
+                        # delta_f = suggested['freight_modules'] - current_f
 
                         module_adjustments[direction][vehicle_id][station_id] = {
-                            "delta_p": delta_p,
-                            "delta_f": delta_f
+                            "delta_p": suggested['delta_p'],
+                            "delta_f": suggested['delta_f']
                         }
 
                     # 提取模块调整范围 (供下一次变异使用)

@@ -80,14 +80,11 @@ class IntegratedBusModuleSystem:
         delta_max = total_max - current_total
 
         # 7. 乘客模块调整范围（思路1：基于总需求优化）
-        # 最小值：至少满足在车乘客需求
-        # p_min = max(0, U_pass)
+        # 最小值：至少满足在车乘客需求 p_min = max(0, U_pass)
         p_min = U_pass
 
-
         # 8. 货物模块调整范围（思路1：基于总需求优化）
-        # 最小值：至少满足在车货物需求
-        # f_min = max(0, U_cargo)
+        # 最小值：至少满足在车货物需求 f_min = max(0, U_cargo)
         f_min = U_cargo
 
         return {
@@ -127,100 +124,114 @@ class IntegratedBusModuleSystem:
                 'total_optimal': T_total,
                 'system_min_limit': self.alpha,
                 'system_max_limit': self.beta,
+                'total_max': total_max,
                 'feasible_total_range': (total_min, total_max),
                 'delta_range': (delta_min, delta_max)
             },
-            'adjustment_ranges': {
-                'passenger_modules': {
-                    'min': p_min,
-                    # 'max': p_max,
-                    'current': p_n_k,
-                    'delta_range': (p_min - p_n_k, total_max - p_n_k - f_min)
-                    # 'delta_range': (p_min - current_p_modules, min(store_modules, parameters['MAX_MODULES']) - current_total)
-                    # 'delta_range': (p_min - current_p_modules, p_max - current_p_modules)
-                },
-                'freight_modules': {
-                    'min': f_min,
-                    # 'max': f_max,
-                    'current': f_n_k,
-                    # 'delta_range': (f_min - f_n_k, total_max - current_total)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
-                    'delta_range': (f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
-                    # 'delta_range': (f_min - current_f_modules, total_max - current_total - 乘客模块变化量)
-                    # 'delta_range': (f_min - current_f_modules, f_max - current_f_modules)
-                }
+            'add':{
+                'passenger_modules_min': p_min,
+                'freight_modules_min': f_min
             }
+            # 'adjustment_ranges': {
+            #     'passenger_modules': {
+            #         'min': p_min,
+            #         # 'max': p_max,
+            #         'current': p_n_k,
+            #         'delta_range': (p_min - p_n_k, total_max - p_n_k - f_min)
+            #         # 'delta_range': (p_min - current_p_modules, min(store_modules, parameters['MAX_MODULES']) - current_total)
+            #         # 'delta_range': (p_min - current_p_modules, p_max - current_p_modules)
+            #     },
+            #     'freight_modules': {
+            #         'min': f_min,
+            #         # 'max': f_max,
+            #         'current': f_n_k,
+            #         # 'delta_range': (f_min - f_n_k, total_max - current_total)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+            #         'delta_range': (f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+            #         # 'delta_range': (f_min - current_f_modules, total_max - current_total - 乘客模块变化量)
+            #         # 'delta_range': (f_min - current_f_modules, f_max - current_f_modules)
+            #     }
+            # }
         }
 
-
-    def generate_feasible_module_allocation(self, analysis_result: Dict) -> Tuple[int, int, int, int]:
+    def generate_feasible_module_allocation(self, module_analysis: Dict) -> Tuple[int, int, int, int, dict]:
         """
         基于分析结果生成可行的模块分配方案
 
         Args:
-            analysis_result: calculate_station_module_requirements的返回结果
+            module_analysis: calculate_station_module_requirements的返回结果
 
         Returns:
             (下一站乘客模块数, 下一站货物模块数, 乘客模块变化量, 货物模块变化量)
         """
 
-        # 变化前的模块数量
-        current_p_modules = analysis_result['station_info']['current_p_modules']
-        current_f_modules = analysis_result['station_info']['current_f_modules']
+        p_min = module_analysis['add']['passenger_modules_min']
+
+        f_min = module_analysis['add']['freight_modules_min']
+
+        total_max = module_analysis['module_constraints']['total_max']
+
+        p_n_k = module_analysis['station_info']['current_p_modules']
+
+        f_n_k = module_analysis['station_info']['current_f_modules']
 
         # 乘客模块
-        delta_p_min, delta_p_max = analysis_result['adjustment_ranges']['passenger_modules']['delta_range']
-        # 货物模块
-        delta_f_min, delta_f_max = analysis_result['adjustment_ranges']['freight_modules']['delta_range']
+        delta_p_min = p_min - p_n_k
+        delta_p_max = total_max - p_n_k - f_min
 
-        # max_attempts = 100  # 防止死循环
-        # for _ in range(max_attempts):
-        #     # 随机采样 delta_p 和 delta_f
-        #     delta_p = random.randint(delta_p_min, delta_p_max)
-        #     delta_f = random.randint(delta_f_min, delta_f_max)
+        delta_p_range = range(p_min - p_n_k, total_max - p_n_k - f_min + 1)
 
-        #     # 调整后模块数量
-        #     adjusted_p = current_p_modules + delta_p
-        #     adjusted_f = current_f_modules + delta_f
-        #     total_modules = adjusted_p + adjusted_f
-        #
-        #     # 检查是否满足所有约束
-        #     if adjusted_p + adjusted_f > 0 and total_modules <= self.beta:
-        #         return adjusted_p, adjusted_f, delta_p, delta_f
-        #
-        # print('真的生成不了啊')
-        # p_n_k_1 = current_p_modules + delta_p
-        # f_n_k_1 = current_f_modules + delta_f
-
-        # delta_p = random.randint(delta_p_min, delta_p_max)
-        # delta_f = random.randint(delta_f_min, delta_f_max - delta_p)
-        #
-        # p_n_k_1 = current_p_modules + delta_p
-        # f_n_k_1 = current_f_modules + delta_f
-        #
-        # return p_n_k_1, f_n_k_1, delta_p, delta_f
-        print( delta_p_min, delta_p_max,delta_f_min, delta_f_max)
-        delta_f = random.randint(delta_f_min, delta_f_max)
         delta_p = random.randint(delta_p_min, delta_p_max)
+        # delta_p = random.randint(p_min - p_n_k, total_max - p_n_k - f_min)
+
+        # 货物模块
+        delta_f_min = f_min - f_n_k
+        delta_f_max = total_max - f_n_k - p_n_k - delta_p
+
+        delta_f_range = range(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+
+        # print('delta_p_range:', delta_p_range)
+        # print('delta_f_range:', delta_f_range)
 
         while True:
 
-            if weizhi(current_f_modules, current_p_modules, delta_f, delta_p):
+            delta_f = random.randint(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+
+            print("qian", p_n_k, f_n_k, delta_p, delta_f)
+
+            if weizhi(f_n_k, p_n_k, delta_f, delta_p):
                 break
             else:
-                delta_f = random.randint(delta_f_min, delta_f_max)
                 delta_p = random.randint(delta_p_min, delta_p_max)
+                delta_f = random.randint(delta_f_min, delta_f_max)
 
-        print('delta_p:', delta_p)
-        print('delta_f:', delta_f)
+        print("hou", p_n_k, f_n_k, delta_p, delta_f)
 
-        p_n_k_1 = current_p_modules + delta_p
-        f_n_k_1 = current_f_modules + delta_f
+        print('车辆编号:',module_analysis['station_info']['bus_id'])
+        print('站点编号:',module_analysis['station_info']['station_id'])
 
-        return p_n_k_1, f_n_k_1, delta_p, delta_f
+        p_n_k_1 = p_n_k + delta_p
+        f_n_k_1 = f_n_k + delta_f
+
+        adjustment_ranges = {
+            'passenger_modules': {
+                'min': p_min,
+                'current': p_n_k,
+                'delta_range': delta_p_range
+            },
+            'freight_modules': {
+                'min': f_min,
+                'current': f_n_k,
+                'delta_range': delta_f_range  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+            }
+        }
+
+        module_analysis['adjustment_ranges'] = adjustment_ranges
+
+        return p_n_k_1, f_n_k_1, delta_p, delta_f, module_analysis
 
 
 def weizhi(current_f_modules, current_p_modules, delta_f, delta_p):
-    if current_f_modules + delta_f + current_p_modules + delta_p != 0:
+    if current_f_modules + delta_f !=0 or current_p_modules + delta_p != 0:
         return True
     else:
         return False
@@ -378,7 +389,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 # print(f"    下车后: 乘客{onboard_p_after}, 货物{onboard_f_after}")
                 # print(f"    等待: 乘客{waiting_p}, 货物{waiting_f}")
 
-                # 1. 计算模块需求和调整范围
+                # 1. 计算模块需求和调整范围(先统计相关的数据)
                 module_analysis = module_system.calculate_station_module_requirements(
                     n=vid, k=station_id,
                     p_n_k=current_p_modules,
@@ -394,13 +405,16 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     waiting_cargo=waiting_f
                 )
 
-                # 2. 执行模块调整（在上车前）
-                print('执行之前')
-                print('-------')
-                print(module_analysis)
-                print('-------')
-                adjusted_p_modules, adjusted_f_modules, delta_p, delta_f = module_system.generate_feasible_module_allocation(module_analysis)
-                print('执行之后')
+                # 2. 计算模块调整方案，输出分析结果 执行模块调整（在上车前）
+                # print('执行之前')
+                # print('-------')
+                # # print(module_analysis)
+                # print('-------')
+                adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, module_analysis = module_system.generate_feasible_module_allocation(module_analysis)
+                # print('执行之后')
+
+                print('打印调整结果和调整方案')
+                print('adjusted_p_modules', adjusted_p_modules, 'adjusted_f_modules', adjusted_f_modules, 'delta_p', delta_p, 'delta_f', delta_f)
 
                 # print(f"    模块调整: 乘客 {current_p_modules}->{adjusted_p_modules}({delta_p:+d}), 货物 {current_f_modules}->{adjusted_f_modules}({delta_f:+d})")
 
@@ -443,7 +457,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
 
                 # 5. 更新站点模块库存（模块调整的影响）
                 station_module_stock_before = station_module_stock[station_id]["modules"]
-                station_module_stock[station_id]["modules"] -= (delta_p + delta_f)
+                station_module_stock[station_id]["modules"] += (delta_p + delta_f)
                 station_module_stock_after = station_module_stock[station_id]["modules"]
 
                 # 6. 检查站点库存约束 (已注释掉)
@@ -459,7 +473,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 #     return {}, float('inf'), 1e9, 1e9, failure_records, pd.DataFrame([]), []
 
                 # === 思路1核心：基于调整后的容量进行上车操作 ===
-
+                print('开始上车')
                 # 7. 乘客上车逻辑（基于调整后的容量）
                 available_p_capacity = adjusted_p_capacity - onboard_p_after
                 boarded_p = 0
@@ -496,8 +510,6 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 available_f_capacity = adjusted_f_capacity - onboard_f_after
                 boarded_f = 0
                 served_freight_waiting_time = 0
-
-                # print(f"    调整后货物可用容量: {available_f_capacity}")
 
                 if available_f_capacity > 0:
                     for s_dest in range(station_id + 1, num_stations):
@@ -546,8 +558,12 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     module_analysis['suggested_next_allocation'] = {
                         'passenger_modules': next_p,
                         'freight_modules': next_f,
-                        'total_modules': next_p + next_f
+                        'total_modules': next_p + next_f,
+                        'delta_p': delta_p,
+                        'delta_f': delta_f
                     }
+
+                print('module_analysis:', module_analysis)
 
                 # 11. 记录模块分析结果
                 module_analysis_records.append({
@@ -557,6 +573,8 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     'direction': direction,
                     'analysis': module_analysis
                 })
+
+                print('记录详细信息')
 
                 # 12. 记录详细信息（思路1：更新记录内容）
                 df_enriched.append({
@@ -618,6 +636,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
         return {}, float('inf'), 1e9, 1e9, failure_records, pd.DataFrame([]), []
 
     # 计算未服务需求的等待时间成本
+    print('计算未服务需求的等待时间成本')
     unserved_passenger_waiting_cost = 0
     unserved_freight_waiting_cost = 0
 
@@ -647,6 +666,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
     freight_waiting_cost = total_freight_waiting_time_cost * parameters["freight_waiting_cost"]
 
     # 计算运营成本
+    print('计算运营成本')
     modular_bus_cost = 0
     for direction in ["up", "down"]:
         vehicle_dispatch = individual[direction]["vehicle_dispatch"]
@@ -703,6 +723,8 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
     # ==================== 新增逻辑：结束 ====================
 
     df_enriched = pd.DataFrame(df_enriched)
+
+    print('返回函数返回值')
 
     return vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components
 
@@ -787,13 +809,22 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
             current_p_modules = individual[direction]["initial_allocation"][vid]["passenger_modules"]
             current_f_modules = individual[direction]["initial_allocation"][vid]["freight_modules"]
 
+            print('--------之前---------')
+            print('current_p_modules:', current_p_modules)
+            print('current_f_modules:', current_f_modules)
+            print('--------之前---------')
+
             next_p = 0
             next_f = 0
 
-            for sid in range(vehicle["num_stations"]):
-                station_id = sid + offset
+            print('vid:', vid)
 
-                print('起始站点station_id:', station_id)
+            for sid in range(vehicle["num_stations"]):
+                print('sid:', sid)
+                station_id = sid + offset
+                print('station_id:', station_id)
+
+                # print('起始站点station_id:', station_id)
 
                 if sid > 0:
                     arrival_time += parameters["t_s_s1"]
@@ -814,12 +845,15 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                 onboard_p_after = sum(sum(p.values()) for p in onboard_passengers.values())
                 onboard_f_after = sum(sum(f.values()) for f in onboard_freight.values())
 
+                print('onboard_p_after:', onboard_p_after)
+                print('onboard_f_after:', onboard_f_after)
+
                 waiting_p = 0
                 waiting_f = 0
 
                 for s_dest in range(station_id + 1, num_stations):
-                    print('目标站点s_dest:', s_dest)
-                    print('末尾站点num_stations:', num_stations)
+                    # print('目标站点s_dest:', s_dest)
+                    # print('末尾站点num_stations:', num_stations)
                     for t in range(arrival_time + 1):
 
                         if (station_id in a_matrix_p and s_dest in a_matrix_p[station_id]
@@ -840,10 +874,15 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                     waiting_pass=waiting_p, waiting_cargo=waiting_f
                 )
 
+                print('current_p_modules:', current_p_modules)
+                print('current_f_modules:', current_f_modules)
+
                 # 【关键修改】从个体中读取预先确定的模块调整量
                 try:
                     delta_p = individual[direction]["module_adjustments"][vid][station_id]["delta_p"]
                     delta_f = individual[direction]["module_adjustments"][vid][station_id]["delta_f"]
+                    print('delta_p:', delta_p)
+                    print('delta_f:', delta_f)
                 except KeyError:
                     print('station_id:', station_id)
                     print('vid:', vid)
