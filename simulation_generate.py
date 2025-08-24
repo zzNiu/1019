@@ -44,34 +44,60 @@ class IntegratedBusModuleSystem:
             包含模块需求分析和调整范围的完整字典
         """
 
-        # print('开始计算相关的变化范围')
+        print('开始计算相关的变化范围')
 
         # 1. 下车后在车数量
         remaining_pass = onboard_pass_before - off_pass
         remaining_cargo = onboard_cargo_before - off_cargo
+
+        print('remaining_pass:', remaining_pass)
+        print('remaining_cargo:', remaining_cargo)
+
+        if remaining_pass != onboard_pass_after or remaining_cargo != onboard_cargo_after:
+            print('哎呦卧槽 出错了呀 这怎么能算不对呢')
 
         # 2. 下车后在车占用模块数量（最小需求）
         U_pass = math.ceil(remaining_pass / self.C_p) if remaining_pass > 0 else 0
         U_cargo = math.ceil(remaining_cargo / self.C_f) if remaining_cargo > 0 else 0
         U_total = U_pass + U_cargo
 
+        print('最小需求')
+        print('U_pass:', U_pass)
+        print('U_cargo:', U_cargo)
+
         # 3. 考虑等待乘客/货物的总需求模块数（优化后的需求计算）
         # 这是模块调整的目标：既要满足在车需求，又要尽可能满足等待需求
         total_pass_need = remaining_pass + waiting_pass
         total_cargo_need = remaining_cargo + waiting_cargo
 
+        print('总的需求数量')
+        print('total_pass_need:', total_pass_need)
+        print('total_cargo_need:', total_cargo_need)
+
         T_pass = math.ceil(total_pass_need / self.C_p) if total_pass_need > 0 else 0
         T_cargo = math.ceil(total_cargo_need / self.C_f) if total_cargo_need > 0 else 0
         T_total = T_pass + T_cargo
 
+        print('需求模块数量')
+        print('T_pass:', T_pass)
+        print('T_cargo:', T_cargo)
+
         # 4. 当前可用模块总数
         available_modules = p_n_k + f_n_k + store_modules
+
+        print('可用模块数量')
+        print('p_n_k:', p_n_k, 'f_n_k:', f_n_k, 'store_modules:', store_modules)
 
         # 5. 总模块数调整范围（思路1：优先考虑总需求）
         # 最小值：至少满足在车需求
         total_min = U_total
         # 最大值：不超过可用模块和系统上限，但优先考虑总需求
-        total_max = min(available_modules, self.beta, T_total + 2)  # 允许略微超过理论需求以提供缓冲
+        total_max = min(available_modules, self.beta)  # 允许略微超过理论需求以提供缓冲
+        # total_max = min(available_modules, self.beta, T_total + 2)  # 允许略微超过理论需求以提供缓冲
+
+        print('最少、最大需求模块数量')
+        print('total_min:', total_min)
+        print('total_max:', total_max)
 
         # 6. 模块增量范围
         current_total = p_n_k + f_n_k
@@ -126,31 +152,12 @@ class IntegratedBusModuleSystem:
                 'system_max_limit': self.beta,
                 'total_max': total_max,
                 'feasible_total_range': (total_min, total_max),
-                'delta_range': (delta_min, delta_max)
+                # 'delta_range': (delta_min, delta_max)
             },
             'add':{
                 'passenger_modules_min': p_min,
                 'freight_modules_min': f_min
             }
-            # 'adjustment_ranges': {
-            #     'passenger_modules': {
-            #         'min': p_min,
-            #         # 'max': p_max,
-            #         'current': p_n_k,
-            #         'delta_range': (p_min - p_n_k, total_max - p_n_k - f_min)
-            #         # 'delta_range': (p_min - current_p_modules, min(store_modules, parameters['MAX_MODULES']) - current_total)
-            #         # 'delta_range': (p_min - current_p_modules, p_max - current_p_modules)
-            #     },
-            #     'freight_modules': {
-            #         'min': f_min,
-            #         # 'max': f_max,
-            #         'current': f_n_k,
-            #         # 'delta_range': (f_min - f_n_k, total_max - current_total)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
-            #         'delta_range': (f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
-            #         # 'delta_range': (f_min - current_f_modules, total_max - current_total - 乘客模块变化量)
-            #         # 'delta_range': (f_min - current_f_modules, f_max - current_f_modules)
-            #     }
-            # }
         }
 
     def generate_feasible_module_allocation(self, module_analysis: Dict) -> Tuple[int, int, int, int, dict]:
@@ -165,36 +172,43 @@ class IntegratedBusModuleSystem:
         """
 
         p_min = module_analysis['add']['passenger_modules_min']
-
+        print('p_min:', p_min)
         f_min = module_analysis['add']['freight_modules_min']
-
+        print('f_min:', f_min)
         total_max = module_analysis['module_constraints']['total_max']
-
+        print('total_max:', total_max)
         p_n_k = module_analysis['station_info']['current_p_modules']
-
+        print('p_n_k:', p_n_k)
         f_n_k = module_analysis['station_info']['current_f_modules']
-
+        print('f_n_k:', f_n_k)
         # 乘客模块
-        delta_p_min = p_min - p_n_k
+        delta_p_min = p_n_k - p_min
         delta_p_max = total_max - p_n_k - f_min
 
-        delta_p_range = range(p_min - p_n_k, total_max - p_n_k - f_min + 1)
+        print('delta_p_min = p_min - p_n_k:', delta_p_min)
+        print('delta_p_max = total_max - p_n_k - f_min:', delta_p_max)
 
+        delta_p_range = range(delta_p_min, delta_p_max)
         delta_p = random.randint(delta_p_min, delta_p_max)
         # delta_p = random.randint(p_min - p_n_k, total_max - p_n_k - f_min)
 
-        # 货物模块
-        delta_f_min = f_min - f_n_k
-        delta_f_max = total_max - f_n_k - p_n_k - delta_p
+        print('delta_p:', delta_p)
 
-        delta_f_range = range(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+        # 货物模块
+        delta_f_min = f_n_k - f_min
+        delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
+
+        print('delta_f_min = f_min - f_n_k:', delta_f_min)
+        print('delta_f_max = total_max - f_n_k - p_n_k - delta_p:', delta_f_max)
+
+        delta_f_range = range(delta_f_min, delta_f_max)
 
         # print('delta_p_range:', delta_p_range)
         # print('delta_f_range:', delta_f_range)
 
         while True:
 
-            delta_f = random.randint(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+            delta_f = random.randint(delta_f_min, delta_f_max)
 
             print("qian", p_n_k, f_n_k, delta_p, delta_f)
 
@@ -231,6 +245,7 @@ class IntegratedBusModuleSystem:
 
 
 def weizhi(current_f_modules, current_p_modules, delta_f, delta_p):
+
     if current_f_modules + delta_f !=0 or current_p_modules + delta_p != 0:
         return True
     else:
@@ -319,7 +334,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
         for vehicle in all_vehicles:
 
             if vehicle["direction"] != direction:
-                continue
+                continue  # continue中断当前循环 break中断整个循环
 
             vid = vehicle["global_vid"]
             offset = vehicle["station_offset"]
@@ -333,10 +348,11 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
             onboard_passengers = {}
             onboard_freight = {}
 
-            # 当前模块数量
+            # 当前模块数量（获得初始模块数量）
             current_p_modules = individual[direction]["initial_allocation"][vid]["passenger_modules"]
             current_f_modules = individual[direction]["initial_allocation"][vid]["freight_modules"]
 
+            # 初始化下一个站点的模块数量
             next_p = 0
             next_f = 0
 
@@ -1090,3 +1106,243 @@ def collect_vehicle_info(individual, parameters,
             })
 
     return all_vehicles, vehicle_schedule, None
+
+
+
+#     def calculate_station_module_requirements(self, n: int, k: int,
+#                                               p_n_k: int, f_n_k: int,
+#                                               store_modules: int,
+#                                               onboard_pass_before: int, onboard_cargo_before: int,
+#                                               onboard_pass_after: int, onboard_cargo_after: int,
+#                                               off_pass: int, off_cargo: int,
+#                                               waiting_pass: int, waiting_cargo: int) -> Dict:
+#         """
+#         计算第n班车在第k个站点的模块需求和调整范围
+#
+#         思路1实现：基于下车后在车数量 + 等待需求来计算模块调整需求
+#         这样可以确保模块调整后能够容纳所有可能上车的乘客/货物
+#
+#         Returns:
+#             包含模块需求分析和调整范围的完整字典
+#         """
+#
+#         # print('开始计算相关的变化范围')
+#
+#         # 1. 下车后在车数量
+#         remaining_pass = onboard_pass_before - off_pass
+#         remaining_cargo = onboard_cargo_before - off_cargo
+#
+#         print('remaining_pass:', remaining_pass)
+#         print('remaining_cargo:', remaining_cargo)
+#
+#         if remaining_pass != onboard_pass_after or remaining_cargo != onboard_cargo_after:
+#             print('哎呦卧槽 出错了呀 这怎么能算不对呢')
+#
+#         # 2. 下车后在车占用模块数量（最小需求）
+#         U_pass = math.ceil(remaining_pass / self.C_p) if remaining_pass > 0 else 0
+#         U_cargo = math.ceil(remaining_cargo / self.C_f) if remaining_cargo > 0 else 0
+#         U_total = U_pass + U_cargo
+#
+#         print('U_pass:', U_pass)
+#         print('U_cargo:', U_cargo)
+#
+#         # 3. 考虑等待乘客/货物的总需求模块数（优化后的需求计算）
+#         # 这是模块调整的目标：既要满足在车需求，又要尽可能满足等待需求
+#         total_pass_need = remaining_pass + waiting_pass
+#         total_cargo_need = remaining_cargo + waiting_cargo
+#
+#         print('total_pass_need:', total_pass_need)
+#         print('total_cargo_need:', total_cargo_need)
+#
+#         T_pass = math.ceil(total_pass_need / self.C_p) if total_pass_need > 0 else 0
+#         T_cargo = math.ceil(total_cargo_need / self.C_f) if total_cargo_need > 0 else 0
+#         T_total = T_pass + T_cargo
+#
+#         print('T_pass:', T_pass)
+#         print('T_cargo:', T_cargo)
+#
+#         # 4. 当前可用模块总数
+#         available_modules = p_n_k + f_n_k + store_modules
+#
+#         print('p_n_k:', p_n_k, 'f_n_k:', f_n_k, 'store_modules:', store_modules)
+#
+#         # 5. 总模块数调整范围（思路1：优先考虑总需求）
+#         # 最小值：至少满足在车需求
+#         total_min = U_total
+#         # 最大值：不超过可用模块和系统上限，但优先考虑总需求
+#         total_max = min(available_modules, self.beta)  # 允许略微超过理论需求以提供缓冲
+#         # total_max = min(available_modules, self.beta, T_total + 2)  # 允许略微超过理论需求以提供缓冲
+#
+#         print('total_min:', total_min)
+#         print('total_max:', total_max)
+#
+#         # 6. 模块增量范围
+#         current_total = p_n_k + f_n_k
+#
+#         delta_min = total_min - current_total
+#         delta_max = total_max - current_total
+#
+#         # 7. 乘客模块调整范围（思路1：基于总需求优化）
+#         # 最小值：至少满足在车乘客需求 p_min = max(0, U_pass)
+#         p_min = U_pass
+#
+#         # 8. 货物模块调整范围（思路1：基于总需求优化）
+#         # 最小值：至少满足在车货物需求 f_min = max(0, U_cargo)
+#         f_min = U_cargo
+#
+#         return {
+#             'station_info': {
+#                 'bus_id': n,
+#                 'station_id': k,
+#                 'current_p_modules': p_n_k,
+#                 'current_f_modules': f_n_k,
+#                 'store_modules': store_modules,
+#                 'current_total': current_total
+#             },
+#             'passenger_analysis': {
+#                 'onboard_before': onboard_pass_before,
+#                 'alighting': off_pass,
+#                 'waiting': waiting_pass,
+#                 'remaining_onboard': remaining_pass,
+#                 'total_demand': total_pass_need,
+#                 'min_modules_needed': U_pass,
+#                 'optimal_modules': T_pass,
+#                 # 'utilization_rate': p_utilization,
+#                 # 'coverage_rate': p_coverage
+#             },
+#             'freight_analysis': {
+#                 'onboard_before': onboard_cargo_before,
+#                 'alighting': off_cargo,
+#                 'waiting': waiting_cargo,
+#                 'remaining_onboard': remaining_cargo,
+#                 'total_demand': total_cargo_need,
+#                 'min_modules_needed': U_cargo,
+#                 'optimal_modules': T_cargo,
+#                 # 'utilization_rate': f_utilization,
+#                 # 'coverage_rate': f_coverage
+#             },
+#             'module_constraints': {
+#                 'total_available': available_modules,
+#                 'total_min_required': U_total,
+#                 'total_optimal': T_total,
+#                 'system_min_limit': self.alpha,
+#                 'system_max_limit': self.beta,
+#                 'total_max': total_max,
+#                 'feasible_total_range': (total_min, total_max),
+#                 'delta_range': (delta_min, delta_max)
+#             },
+#             'add':{
+#                 'passenger_modules_min': p_min,
+#                 'freight_modules_min': f_min
+#             }
+#             # 'adjustment_ranges': {
+#             #     'passenger_modules': {
+#             #         'min': p_min,
+#             #         # 'max': p_max,
+#             #         'current': p_n_k,
+#             #         'delta_range': (p_min - p_n_k, total_max - p_n_k - f_min)
+#             #         # 'delta_range': (p_min - current_p_modules, min(store_modules, parameters['MAX_MODULES']) - current_total)
+#             #         # 'delta_range': (p_min - current_p_modules, p_max - current_p_modules)
+#             #     },
+#             #     'freight_modules': {
+#             #         'min': f_min,
+#             #         # 'max': f_max,
+#             #         'current': f_n_k,
+#             #         # 'delta_range': (f_min - f_n_k, total_max - current_total)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+#             #         'delta_range': (f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+#             #         # 'delta_range': (f_min - current_f_modules, total_max - current_total - 乘客模块变化量)
+#             #         # 'delta_range': (f_min - current_f_modules, f_max - current_f_modules)
+#             #     }
+#             # }
+#         }
+#
+#     def generate_feasible_module_allocation(self, module_analysis: Dict) -> Tuple[int, int, int, int, dict]:
+#         """
+#         基于分析结果生成可行的模块分配方案
+#
+#         Args:
+#             module_analysis: calculate_station_module_requirements的返回结果
+#
+#         Returns:
+#             (下一站乘客模块数, 下一站货物模块数, 乘客模块变化量, 货物模块变化量)
+#         """
+#
+#         p_min = module_analysis['add']['passenger_modules_min']
+#         print('p_min:', p_min)
+#         f_min = module_analysis['add']['freight_modules_min']
+#         print('f_min:', f_min)
+#         total_max = module_analysis['module_constraints']['total_max']
+#         print('total_max:', total_max)
+#         p_n_k = module_analysis['station_info']['current_p_modules']
+#         print('p_n_k:', p_n_k)
+#         f_n_k = module_analysis['station_info']['current_f_modules']
+#         print('f_n_k:', f_n_k)
+#         # 乘客模块
+#         delta_p_min = p_min - p_n_k
+#         delta_p_max = total_max - p_n_k - f_min
+#
+#         print('delta_p_min = p_min - p_n_k:', delta_p_min)
+#         print('delta_p_max = total_max - p_n_k - f_min:', delta_p_max)
+#
+#         delta_p_range = range(p_min - p_n_k, total_max - p_n_k - f_min + 1)
+#
+#         delta_p = random.randint(delta_p_min, delta_p_max)
+#         # delta_p = random.randint(p_min - p_n_k, total_max - p_n_k - f_min)
+#
+#         print('delta_p:', delta_p)
+#
+#         # 货物模块
+#         delta_f_min = f_min - f_n_k
+#         delta_f_max = total_max - f_n_k - p_n_k - delta_p
+#
+#         print('delta_f_min = f_min - f_n_k:', delta_f_min)
+#         print('delta_f_max = total_max - f_n_k - p_n_k - delta_p:', delta_f_max)
+#
+#         delta_f_range = range(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+#
+#         # print('delta_p_range:', delta_p_range)
+#         # print('delta_f_range:', delta_f_range)
+#
+#         while True:
+#
+#             delta_f = random.randint(f_min - f_n_k, total_max - f_n_k - p_n_k - delta_p)
+#
+#             print("qian", p_n_k, f_n_k, delta_p, delta_f)
+#
+#             if weizhi(f_n_k, p_n_k, delta_f, delta_p):
+#                 break
+#             else:
+#                 delta_p = random.randint(delta_p_min, delta_p_max)
+#                 delta_f = random.randint(delta_f_min, delta_f_max)
+#
+#         print("hou", p_n_k, f_n_k, delta_p, delta_f)
+#
+#         print('车辆编号:',module_analysis['station_info']['bus_id'])
+#         print('站点编号:',module_analysis['station_info']['station_id'])
+#
+#         p_n_k_1 = p_n_k + delta_p
+#         f_n_k_1 = f_n_k + delta_f
+#
+#         adjustment_ranges = {
+#             'passenger_modules': {
+#                 'min': p_min,
+#                 'current': p_n_k,
+#                 'delta_range': delta_p_range
+#             },
+#             'freight_modules': {
+#                 'min': f_min,
+#                 'current': f_n_k,
+#                 'delta_range': delta_f_range  # 这里没有考虑乘客模块的变化量，在后面实际变化的时候把变化量考虑进去
+#             }
+#         }
+#
+#         module_analysis['adjustment_ranges'] = adjustment_ranges
+#
+#         return p_n_k_1, f_n_k_1, delta_p, delta_f, module_analysis
+#
+#
+# def weizhi(current_f_modules, current_p_modules, delta_f, delta_p):
+#     if current_f_modules + delta_f !=0 or current_p_modules + delta_p != 0:
+#         return True
+#     else:
+#         return False
