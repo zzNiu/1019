@@ -708,11 +708,13 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
 
     # 检查容量约束
     if onboard_p_after > adjusted_p_capacity or onboard_f_after > adjusted_f_capacity:
+        print('超出容量约束')
         return False
 
     # 检查模块总数约束
     total_modules = adjusted_p_modules + adjusted_f_modules
     if total_modules < parameters.get("alpha", 0) or total_modules > parameters.get("beta", 5):
+        print('超出模块数量约束')
         return False
 
     # 检查站点库存约束

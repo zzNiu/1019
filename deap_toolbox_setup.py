@@ -394,7 +394,9 @@ def setup_deap_toolbox(parameters, global_demand_data):
         print("delta_range:", range_info["delta_range"])
 
         # 从 'delta_range' 元组中提取变化的下限和上限
-        min_val, max_val = range_info["delta_range"]
+        min_val = range_info["delta_range"].start
+        max_val = range_info["delta_range"].stop
+        # min_val, max_val = range_info["delta_range"]
 
         print('min_val:', min_val)
         print('max_val:', max_val)

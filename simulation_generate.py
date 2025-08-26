@@ -88,6 +88,9 @@ class IntegratedBusModuleSystem:
         print('可用模块数量')
         print('p_n_k:', p_n_k, 'f_n_k:', f_n_k, 'store_modules:', store_modules)
 
+        if store_modules < 0:
+            print('有问题了')
+
         # 5. 总模块数调整范围（思路1：优先考虑总需求）
         # 最小值：至少满足在车需求
         total_min = U_total
@@ -182,40 +185,47 @@ class IntegratedBusModuleSystem:
         f_n_k = module_analysis['station_info']['current_f_modules']
         print('f_n_k:', f_n_k)
         # 乘客模块
-        delta_p_min = p_n_k - p_min
+        delta_p_min =  p_min - p_n_k
+        # delta_p_min = p_n_k - p_min
         delta_p_max = total_max - p_n_k - f_min
 
         print('delta_p_min = p_min - p_n_k:', delta_p_min)
         print('delta_p_max = total_max - p_n_k - f_min:', delta_p_max)
 
-        delta_p_range = range(delta_p_min, delta_p_max)
+        delta_p_range = range(delta_p_min, delta_p_max + 1)
         delta_p = random.randint(delta_p_min, delta_p_max)
         # delta_p = random.randint(p_min - p_n_k, total_max - p_n_k - f_min)
 
         print('delta_p:', delta_p)
 
         # 货物模块
-        delta_f_min = f_n_k - f_min
+        delta_f_min =  f_min - f_n_k
         delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
 
         print('delta_f_min = f_min - f_n_k:', delta_f_min)
         print('delta_f_max = total_max - f_n_k - p_n_k - delta_p:', delta_f_max)
 
-        delta_f_range = range(delta_f_min, delta_f_max)
+        delta_f_range = range(delta_f_min, delta_f_max + 1)
 
         # print('delta_p_range:', delta_p_range)
         # print('delta_f_range:', delta_f_range)
 
-        while True:
+        delta_f = random.randint(delta_f_min, delta_f_max)
 
-            delta_f = random.randint(delta_f_min, delta_f_max)
+        while True:
 
             print("qian", p_n_k, f_n_k, delta_p, delta_f)
 
             if weizhi(f_n_k, p_n_k, delta_f, delta_p):
                 break
             else:
+                delta_p_min = p_min - p_n_k
+                # delta_p_min = p_n_k - p_min
+                delta_p_max = total_max - p_n_k - f_min
                 delta_p = random.randint(delta_p_min, delta_p_max)
+
+                delta_f_min = f_min - f_n_k
+                delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
                 delta_f = random.randint(delta_f_min, delta_f_max)
 
         print("hou", p_n_k, f_n_k, delta_p, delta_f)
@@ -326,7 +336,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
             a_matrix_p = a_matrix_p_up
             a_matrix_f = a_matrix_f_up
         else:
-            num_stations = parameters["up_station_count"]
+            num_stations = parameters["up_station_count"] + parameters["up_station_count"]
             a_matrix_p = a_matrix_p_down
             a_matrix_f = a_matrix_f_down
 
@@ -473,8 +483,13 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
 
                 # 5. 更新站点模块库存（模块调整的影响）
                 station_module_stock_before = station_module_stock[station_id]["modules"]
-                station_module_stock[station_id]["modules"] += (delta_p + delta_f)
+                station_module_stock[station_id]["modules"] -= (delta_p + delta_f)
                 station_module_stock_after = station_module_stock[station_id]["modules"]
+                print('station_module_stock_before:', station_module_stock_before)
+                print('delta_p:', delta_p, 'delta_f:', delta_f)
+                print('station_module_stock_after:', station_module_stock_after)
+                if station_module_stock_after < 0 :
+                    print('逆天了 竟然小于0')
 
                 # 6. 检查站点库存约束 (已注释掉)
                 # if (station_module_stock_after > parameters["max_modules_stock"] or
@@ -1069,6 +1084,7 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                 remaining_freights += a_matrix_f_down[s][s_dest][t]
 
     print(f"✅ 评估仿真完成 - 总成本: {total_cost:.2f}")
+    print('cost_components:', cost_components)
     print(f"   剩余乘客: {remaining_passengers}, 剩余货物: {remaining_freights}")
     df_enriched = pd.DataFrame(df_enriched)
 
