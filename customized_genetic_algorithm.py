@@ -1,5 +1,6 @@
 import math
 import random
+import numpy as np
 from deap import tools
 
 import os  # <--- 新增导入
@@ -266,18 +267,6 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
             print(logbook.stream)
 
     print('进化完成')
-
-    # # === 新增：出图（文件默认名：成本构成堆叠图.png） ===
-    # try:
-    #
-    #     print(f"开始绘制成本堆叠图")
-    #
-    #     plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path="best_solution_20250814_144416/成本构成堆叠图.png")
-    #
-    #     print(f"绘制成本堆叠图完成")
-    #
-    # except Exception as e:
-    #     print(f"绘制成本堆叠图失败：{e}")
 
     return population, logbook, cost_history
 

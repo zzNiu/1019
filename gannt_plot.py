@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 # ==============================================================================
 
 # 1. 指定仿真程序输出的Excel文件路径
-EXCEL_FILE_PATH = 'best_solution_20250827_234942/simulation_details.xlsx'  # <--- 确保这个文件名与您保存的文件名一致
+EXCEL_FILE_PATH = 'best_solution_20250828_085154/simulation_details.xlsx'  # <--- 确保这个文件名与您保存的文件名一致
 
 # 2. 列名映射
 COLUMN_MAPPING = {
@@ -16,17 +16,16 @@ COLUMN_MAPPING = {
     'station': '站点ID',
     'direction': '方向',
     'arrival_time': '到达时间',
-    'num_p_modules': '调整后乘客模块',
-    'num_f_modules': '调整后货物模块',
+    'num_p_modules': '调整后乘客总容量',
+    'num_f_modules': '调整后货物总容量',
     'on_board_p': '上车后在车乘客数量',
     'on_board_f': '上车后在车货物数量',
 }
 
 # 3. 绘图参数配置
 STOP_DURATION_MINUTES = 1
-MAX_MODULES_FOR_SCALING = 10
-MAX_PASSENGERS_FOR_SCALING = 100
-
+MAX_MODULES_FOR_SCALING = 20
+MAX_PASSENGERS_FOR_SCALING = 20
 
 # ==============================================================================
 # --- 核心代码区 ---
@@ -80,7 +79,7 @@ def plot_gantt_chart_on_ax(ax, schedule_data, stations, title):
         return
 
     # --- 优化后的条形图参数 ---
-    bar_height_scale_factor = 1.5  # 调整回合理的高度缩放
+    bar_height_scale_factor = 0.5  # 调整回合理的高度缩放
     capacity_bar_width = timedelta(seconds=100)  # 容量条（模块）更宽
     load_bar_width = timedelta(seconds=80)  # 负载条（乘客/货物）更窄
     group_offset = timedelta(seconds=30)  # 乘客组和货物组之间的偏移
@@ -126,7 +125,7 @@ def plot_gantt_chart_on_ax(ax, schedule_data, stations, title):
     # --- 图表美化 ---
     ax.set_yticks(range(len(stations)))
     ax.set_yticklabels(stations, fontsize=12)
-    ax.set_ylim(-0.5, len(stations) - 0.5)
+    ax.set_ylim(-0.5, len(stations))
     ax.set_xlabel('Time', fontsize=14)
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     ax.xaxis.set_major_locator(mdates.MinuteLocator(interval=10))
@@ -174,7 +173,7 @@ if __name__ == '__main__':
 
         plt.tight_layout(rect=[0, 0, 1, 0.9])  # 调整布局为总标题和图例留出空间
 
-        output_filename = 'gantt_chart_optimized.png'
+        output_filename = 'best_solution_20250828_085154/gantt_chart_optimized.png'
         plt.savefig(output_filename)
         print(f"\n已将优化后的图表保存到 {output_filename}")
 

@@ -332,6 +332,7 @@ def _generate_comprehensive_analysis_plot(generations, min_costs, avg_costs, max
   • 总代数: {len(generations)}
   • 初始成本: {min_costs[0]:.2f}
   • 最终成本: {min_costs[-1]:.2f}
+  
 
 🎯 改进指标:
   • 总改进量: {total_improvement:.2f}
