@@ -637,6 +637,12 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     "上车乘客": boarded_p,
                     "上车货物": boarded_f,
 
+
+                    # ==================== 代码修改处 开始 ====================
+                    "上车后在车乘客数量": onboard_p_after + boarded_p,
+                    "上车后在车货物数量": onboard_f_after + boarded_f,
+                    # ==================== 代码修改处 结束 ====================
+
                     # 容量信息（调整后）
                     "调整后乘客总容量": adjusted_p_capacity,
                     "调整后货物总容量": adjusted_f_capacity,
@@ -1004,6 +1010,10 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                     "模块增量_乘客": delta_p, "模块增量_货物": delta_f,
                     "下车后在车乘客": onboard_p_after, "上车乘客": boarded_p,
                     "下车后在车货物": onboard_f_after, "上车货物": boarded_f,
+                    # ==================== 代码修改处 开始 ====================
+                    "上车后在车乘客数量": onboard_p_after + boarded_p,
+                    "上车后在车货物数量": onboard_f_after + boarded_f,
+                    # ==================== 代码修改处 结束 ====================
                     "乘客等待时间成本": served_passenger_waiting_time, "货物等待时间成本": served_freight_waiting_time,
                     "站点进站前库存": station_module_stock_before, "站点出站后库存": station_module_stock_after,
                 })

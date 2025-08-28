@@ -73,6 +73,9 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     logbook = tools.Logbook()
     logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
+    # 新增：初始化一个列表来记录每一代所有个体的信息
+    population_history = []
+
     # 初始种群评估 Evaluate initial population
 
     print('----进入遗传算法 步骤3: 初始种群评估----')
@@ -217,6 +220,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                     print('individual.cost_components:', ind.cost_components)
                     print('fit_value:', ind.fitness)
 
+        print('子代生成完毕')
             # ==================== 修改/新增逻辑：结束 ====================
 
             # else:
