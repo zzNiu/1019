@@ -167,48 +167,107 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 print('车头时距变异')
 
         # === 模块调整变异 ===
+        # === 模块调整变异 (已修正) ===
         elif mutate_type == 2:
-            # === 模块调整变异 ===
-            if adjustment_ranges:
+            if individual.get("adjustment_ranges"):
                 direction = random.choice(["up", "down"])
-                if direction in adjustment_ranges:
-                    vehicle_ids = list(adjustment_ranges[direction].keys())
-                    if vehicle_ids:
-                        # 选择一班车辆
-                        vehicle_id = random.choice(vehicle_ids)
-                        station_ids = list(adjustment_ranges[direction][vehicle_id].keys())
-                        if station_ids:
-                            # 选择一个站点
-                            station_id = random.choice(station_ids)
-                            p_range = adjustment_ranges[direction][vehicle_id][station_id].get("passenger_modules", {})
-                            f_range = adjustment_ranges[direction][vehicle_id][station_id].get("freight_modules", {})
+                adjustment_ranges = individual["adjustment_ranges"]
 
-                            # ==================== 核心修正 ====================
-                            # 在赋值前，确保该站点的字典路径存在
-                            # 如果车辆的调整计划中没有这个站点（无论是最后一个还是中间的），
-                            # 就为它创建一个空的字典档案。
-                            if station_id not in individual[direction]["module_adjustments"][vehicle_id]:
-                                individual[direction]["module_adjustments"][vehicle_id][station_id] = {}
-                            # =================================================
+                print('individual["adjustment_ranges"]:', individual["adjustment_ranges"])
 
-                            mutated = False
-                            if p_range:
-                                new_delta_p = mutate_within_bounds(p_range)
-                                individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_p"] = new_delta_p
-                                mutated = True
+                if direction in adjustment_ranges and adjustment_ranges[direction]:
+                    vehicle_id = random.choice(list(adjustment_ranges[direction].keys()))
 
-                            if f_range:
-                                new_delta_f = mutate_within_bounds(f_range)
-                                individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_f"] = new_delta_f
-                                mutated = True
+                    if vehicle_id in adjustment_ranges[direction] and adjustment_ranges[direction][vehicle_id]:
+                        station_id = random.choice(list(adjustment_ranges[direction][vehicle_id].keys()))
 
-                            if mutated:
-                                module_adjustment_changed = True
-                                mutated_direction = direction
-                                mutated_vehicle_id = vehicle_id
-                                mutated_station_id = station_id
+                        # 1. 获取包含所有原始参数的“决策工具箱”
+                        analysis_data = adjustment_ranges[direction][vehicle_id][station_id]
 
-                                print('模块调整变异', '变异车辆：', vehicle_id, '变异站点：', station_id)
+                        print('vehicle_id:', vehicle_id)
+                        print('station_id:', station_id)
+                        print('analysis_data:', analysis_data)
+
+                        # 2. 提取原始参数用于重新计算
+                        p_n_k = analysis_data['station_info']['current_p_modules']
+                        f_n_k = analysis_data['station_info']['current_f_modules']
+                        total_max = analysis_data['module_constraints']['total_max']
+                        p_min = analysis_data['add']['passenger_modules_min']
+                        f_min = analysis_data['add']['freight_modules_min']
+
+                        # 3. 重新计算 p 的范围并生成新值
+                        delta_p_min = p_min - p_n_k
+                        delta_p_max = total_max - p_n_k - f_min
+                        new_delta_p = random.randint(delta_p_min, delta_p_max) if delta_p_min <= delta_p_max else delta_p_min
+
+                        # 4. 【核心联动逻辑】基于 new_delta_p，动态计算 f 的新范围
+                        delta_f_min = f_min - f_n_k
+                        new_delta_f_max = total_max - f_n_k - (p_n_k + new_delta_p)
+
+                        # 5. 在新的联动范围内生成新值
+                        new_delta_f = random.randint(delta_f_min, new_delta_f_max) if delta_f_min <= new_delta_f_max else delta_f_min
+
+                        # 6. 更新个体染色体
+                        # 确保路径存在
+                        if vehicle_id not in individual[direction]["module_adjustments"]:
+                            individual[direction]["module_adjustments"][vehicle_id] = {}
+                        if station_id not in individual[direction]["module_adjustments"][vehicle_id]:
+                            individual[direction]["module_adjustments"][vehicle_id][station_id] = {}
+
+                        individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_p"] = new_delta_p
+                        individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_f"] = new_delta_f
+
+                        # 标记变异已发生，以便进行部分重仿真
+                        module_adjustment_changed = True
+                        mutated_direction = direction
+                        mutated_vehicle_id = vehicle_id
+                        mutated_station_id = station_id
+                        print(
+                            f'模块调整联动变异: V:{vehicle_id}, S:{station_id}, new_delta_p:{new_delta_p}, new_delta_f:{new_delta_f}')
+        # elif mutate_type == 2:
+        #     # === 模块调整变异 ===
+        #     if adjustment_ranges:
+        #         direction = random.choice(["up", "down"])
+        #         if direction in adjustment_ranges:
+        #             vehicle_ids = list(adjustment_ranges[direction].keys())
+        #             if vehicle_ids:
+        #                 # 选择一班车辆
+        #                 vehicle_id = random.choice(vehicle_ids)
+        #                 station_ids = list(adjustment_ranges[direction][vehicle_id].keys())
+        #                 if station_ids:
+        #                     # 选择一个站点
+        #                     station_id = random.choice(station_ids)
+        #                     p_range = adjustment_ranges[direction][vehicle_id][station_id].get("passenger_modules", {})
+        #                     f_range = adjustment_ranges[direction][vehicle_id][station_id].get("freight_modules", {})
+        #
+        #                     # ==================== 核心修正 ====================
+        #                     # 在赋值前，确保该站点的字典路径存在
+        #                     # 如果车辆的调整计划中没有这个站点（无论是最后一个还是中间的），
+        #                     # 就为它创建一个空的字典档案。
+        #                     if station_id not in individual[direction]["module_adjustments"][vehicle_id]:
+        #                         individual[direction]["module_adjustments"][vehicle_id][station_id] = {}
+        #                     # =================================================
+        #
+        #                     mutated = False
+        #                     if p_range:
+        #                         new_delta_p = mutate_within_bounds(p_range)
+        #                         print('new_delta_p:', new_delta_p)
+        #                         individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_p"] = new_delta_p
+        #                         mutated = True
+        #
+        #                     if f_range:
+        #                         new_delta_f = mutate_within_bounds(f_range)
+        #                         print('new_delta_f:', new_delta_f)
+        #                         individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_f"] = new_delta_f
+        #                         mutated = True
+        #
+        #                     if mutated:
+        #                         module_adjustment_changed = True
+        #                         mutated_direction = direction
+        #                         mutated_vehicle_id = vehicle_id
+        #                         mutated_station_id = station_id
+        #
+        #                         print('模块调整变异', '变异车辆：', vehicle_id, '变异站点：', station_id)
 
         # === 在变异结束后统一判断和更新染色体 ===
         if headway_changed or initial_allocation_changed:
@@ -266,6 +325,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                             "freight_modules": analysis['adjustment_ranges']['freight_modules']
                         }
 
+
                 # 3. 将新生成的调整策略和范围完整更新到个体(染色体)中
                 individual["up"]["module_adjustments"] = module_adjustments.get("up", {})
                 individual["down"]["module_adjustments"] = module_adjustments.get("down", {})
@@ -306,6 +366,25 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 module_analysis_records = simulation_results["module_analysis_records"]
                 failure_records = simulation_results["failure_records"]
 
+                # ==================== 新增的修正逻辑：开始 ====================
+                # 创建一个新的空字典来存储正确结构的 adjustment_ranges
+                new_adjustment_ranges = {"up": {}, "down": {}}
+
+                # 遍历返回的 records 列表，重新构建嵌套字典
+                for record in module_analysis_records:
+                    vehicle_id = record['vehicle_id']
+                    station_id = record['station_id']
+                    direction = record['direction']
+                    analysis = record['analysis']
+
+                    # 初始化车辆记录的字典结构
+                    if vehicle_id not in new_adjustment_ranges[direction]:
+                        new_adjustment_ranges[direction][vehicle_id] = {}
+
+                    # 将完整的 analysis 字典存入正确的位置
+                    new_adjustment_ranges[direction][vehicle_id][station_id] = analysis
+                # ==================== 新增的修正逻辑：结束 ====================
+
                 # ==================== 解决方案核心逻辑：开始 ====================
                 # 为了实现“就地修改”，我们不能直接用 individual = updated_individual
                 # 而是要清空原始 individual 的内容，然后用新个体的内容填充它。
@@ -318,7 +397,9 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 # 3. 现在，在原始 individual 对象上附加新的属性
                 individual.fitness.values = (total_cost,)
                 individual.cost_components = cost_components
-                individual.adjustment_ranges = module_analysis_records
+                # individual.adjustment_ranges = module_analysis_records
+                # 正确的代码
+                individual.adjustment_ranges = new_adjustment_ranges
                 individual.failure_records = failure_records
                 # ==================== 解决方案核心逻辑：结束 ====================
 

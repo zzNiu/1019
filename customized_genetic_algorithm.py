@@ -116,7 +116,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     print('----进入遗传算法 步骤4 种群开始进化----')
     # print('----第2步：种群开始进化----')
     for gen in range(1, ngen + 1):
-
+        print(' 第(', gen, ')代 ')
         # 选择操作
         offspring = toolbox.select(population, len(population))
         offspring = list(map(toolbox.clone, offspring))
@@ -124,12 +124,13 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         # 变异
         for mutant in offspring:
             if random.random() < mutpb:
+                print('mutant["adjustment_ranges"]:', mutant["adjustment_ranges"])
                 print('变异了')
                 # 如果个体有调整范围信息，传递给变异操作
-                if hasattr(mutant, 'adjustment_ranges'):
-                    toolbox.mutate(mutant, parameters, global_demand_data)
-                else:
-                    toolbox.mutate(mutant, parameters, global_demand_data)
+                # if hasattr(mutant, 'adjustment_ranges'):
+                #     toolbox.mutate(mutant, parameters, global_demand_data)
+                # else:
+                toolbox.mutate(mutant, parameters, global_demand_data)
 
                 # ==================== 修改/新增逻辑：开始 ====================
                 mutant.mutated = True  # 为变异后的个体打上标记

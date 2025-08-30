@@ -121,20 +121,25 @@ def generate_individual_with_simulation(num_vehicles, max_modules, headway_range
                     "delta_f": delta_f
                 }
 
-            # 提取调整范围信息
-            # print('提取调整范围信息')
-            if 'adjustment_ranges' in analysis:
-                adjustment_ranges[direction][vehicle_id][station_id] = {
-                    "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],
-                    "freight_modules": analysis['adjustment_ranges']['freight_modules']
-                }
+            # ******** 核心修改逻辑 ********
+            # 将完整的分析结果字典存储起来，为后续的智能变异提供所有原始参数
+            adjustment_ranges[direction][vehicle_id][station_id] = analysis
+            # ****************************
+
+            # # 提取调整范围信息
+            # # print('提取调整范围信息')
+            # if 'adjustment_ranges' in analysis:
+            #     adjustment_ranges[direction][vehicle_id][station_id] = {
+            #         "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],
+            #         "freight_modules": analysis['adjustment_ranges']['freight_modules']
+            #     }
 
         # 将生成的调整策略和范围添加到个体中
         individual["up"]["module_adjustments"] = module_adjustments["up"]
         individual["down"]["module_adjustments"] = module_adjustments["down"]
         individual["adjustment_ranges"] = adjustment_ranges
 
-        print(individual)
+        # print(individual)
 
         print('模块调整相关计算完毕')
         return individual

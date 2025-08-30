@@ -44,14 +44,14 @@ class IntegratedBusModuleSystem:
             包含模块需求分析和调整范围的完整字典
         """
 
-        print('开始计算相关的变化范围')
+        # print('开始计算相关的变化范围')
 
         # 1. 下车后在车数量
         remaining_pass = onboard_pass_before - off_pass
         remaining_cargo = onboard_cargo_before - off_cargo
 
-        print('remaining_pass:', remaining_pass)
-        print('remaining_cargo:', remaining_cargo)
+        # print('remaining_pass:', remaining_pass)
+        # print('remaining_cargo:', remaining_cargo)
 
         if remaining_pass != onboard_pass_after or remaining_cargo != onboard_cargo_after:
             print('哎呦卧槽 出错了呀 这怎么能算不对呢')
@@ -61,32 +61,32 @@ class IntegratedBusModuleSystem:
         U_cargo = math.ceil(remaining_cargo / self.C_f) if remaining_cargo > 0 else 0
         U_total = U_pass + U_cargo
 
-        print('最小需求')
-        print('U_pass:', U_pass)
-        print('U_cargo:', U_cargo)
+        # print('最小需求')
+        # print('U_pass:', U_pass)
+        # print('U_cargo:', U_cargo)
 
         # 3. 考虑等待乘客/货物的总需求模块数（优化后的需求计算）
         # 这是模块调整的目标：既要满足在车需求，又要尽可能满足等待需求
         total_pass_need = remaining_pass + waiting_pass
         total_cargo_need = remaining_cargo + waiting_cargo
 
-        print('总的需求数量')
-        print('total_pass_need:', total_pass_need)
-        print('total_cargo_need:', total_cargo_need)
+        # print('总的需求数量')
+        # print('total_pass_need:', total_pass_need)
+        # print('total_cargo_need:', total_cargo_need)
 
         T_pass = math.ceil(total_pass_need / self.C_p) if total_pass_need > 0 else 0
         T_cargo = math.ceil(total_cargo_need / self.C_f) if total_cargo_need > 0 else 0
         T_total = T_pass + T_cargo
 
-        print('需求模块数量')
-        print('T_pass:', T_pass)
-        print('T_cargo:', T_cargo)
+        # print('需求模块数量')
+        # print('T_pass:', T_pass)
+        # print('T_cargo:', T_cargo)
 
         # 4. 当前可用模块总数
         available_modules = p_n_k + f_n_k + store_modules
 
-        print('可用模块数量')
-        print('p_n_k:', p_n_k, 'f_n_k:', f_n_k, 'store_modules:', store_modules)
+        # print('可用模块数量')
+        # print('p_n_k:', p_n_k, 'f_n_k:', f_n_k, 'store_modules:', store_modules)
 
         if store_modules < 0:
             print('有问题了')
@@ -98,9 +98,9 @@ class IntegratedBusModuleSystem:
         total_max = min(available_modules, self.beta)  # 允许略微超过理论需求以提供缓冲
         # total_max = min(available_modules, self.beta, T_total + 2)  # 允许略微超过理论需求以提供缓冲
 
-        print('最少、最大需求模块数量')
-        print('total_min:', total_min)
-        print('total_max:', total_max)
+        # print('最少、最大需求模块数量')
+        # print('total_min:', total_min)
+        # print('total_max:', total_max)
 
         # 6. 模块增量范围
         current_total = p_n_k + f_n_k
@@ -175,35 +175,35 @@ class IntegratedBusModuleSystem:
         """
 
         p_min = module_analysis['add']['passenger_modules_min']
-        print('p_min:', p_min)
+        # print('p_min:', p_min)
         f_min = module_analysis['add']['freight_modules_min']
-        print('f_min:', f_min)
+        # print('f_min:', f_min)
         total_max = module_analysis['module_constraints']['total_max']
-        print('total_max:', total_max)
+        # print('total_max:', total_max)
         p_n_k = module_analysis['station_info']['current_p_modules']
-        print('p_n_k:', p_n_k)
+        # print('p_n_k:', p_n_k)
         f_n_k = module_analysis['station_info']['current_f_modules']
-        print('f_n_k:', f_n_k)
+        # print('f_n_k:', f_n_k)
         # 乘客模块
         delta_p_min =  p_min - p_n_k
         # delta_p_min = p_n_k - p_min
         delta_p_max = total_max - p_n_k - f_min
 
-        print('delta_p_min = p_min - p_n_k:', delta_p_min)
-        print('delta_p_max = total_max - p_n_k - f_min:', delta_p_max)
+        # print('delta_p_min = p_min - p_n_k:', delta_p_min)
+        # print('delta_p_max = total_max - p_n_k - f_min:', delta_p_max)
 
         delta_p_range = range(delta_p_min, delta_p_max + 1)
         delta_p = random.randint(delta_p_min, delta_p_max)
         # delta_p = random.randint(p_min - p_n_k, total_max - p_n_k - f_min)
 
-        print('delta_p:', delta_p)
+        # print('delta_p:', delta_p)
 
         # 货物模块
         delta_f_min =  f_min - f_n_k
         delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
 
-        print('delta_f_min = f_min - f_n_k:', delta_f_min)
-        print('delta_f_max = total_max - f_n_k - p_n_k - delta_p:', delta_f_max)
+        # print('delta_f_min = f_min - f_n_k:', delta_f_min)
+        # print('delta_f_max = total_max - f_n_k - p_n_k - delta_p:', delta_f_max)
 
         delta_f_range = range(delta_f_min, delta_f_max + 1)
 
@@ -214,7 +214,7 @@ class IntegratedBusModuleSystem:
 
         while True:
 
-            print("qian", p_n_k, f_n_k, delta_p, delta_f)
+            # print("qian", p_n_k, f_n_k, delta_p, delta_f)
 
             if weizhi(f_n_k, p_n_k, delta_f, delta_p):
                 break
@@ -228,10 +228,10 @@ class IntegratedBusModuleSystem:
                 delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
                 delta_f = random.randint(delta_f_min, delta_f_max)
 
-        print("hou", p_n_k, f_n_k, delta_p, delta_f)
-
-        print('车辆编号:',module_analysis['station_info']['bus_id'])
-        print('站点编号:',module_analysis['station_info']['station_id'])
+        # print("hou", p_n_k, f_n_k, delta_p, delta_f)
+        #
+        # print('车辆编号:',module_analysis['station_info']['bus_id'])
+        # print('站点编号:',module_analysis['station_info']['station_id'])
 
         p_n_k_1 = p_n_k + delta_p
         f_n_k_1 = f_n_k + delta_f
@@ -296,7 +296,6 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
     a_matrix_f_up = copy.deepcopy(global_demand_data["a_matrix_f_up"])
     a_matrix_p_down = copy.deepcopy(global_demand_data["a_matrix_p_down"])
     a_matrix_f_down = copy.deepcopy(global_demand_data["a_matrix_f_down"])
-
 
     # 合并调度信息
     vehicle_dispatch_up = individual["up"]["vehicle_dispatch"]
@@ -436,7 +435,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 # print('-------')
                 # # print(module_analysis)
                 # print('-------')
-                adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, module_analysis = module_system.generate_feasible_module_allocation(module_analysis)
+                adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, enhanced_module_analysis = module_system.generate_feasible_module_allocation(module_analysis)
                 # print('执行之后')
 
                 print('打印调整结果和调整方案')
@@ -586,7 +585,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     next_f = adjusted_f_modules
 
                     # 记录建议的下一站配置
-                    module_analysis['suggested_next_allocation'] = {
+                    enhanced_module_analysis['suggested_next_allocation'] = {
                         'passenger_modules': next_p,
                         'freight_modules': next_f,
                         'total_modules': next_p + next_f,
@@ -602,7 +601,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     'vehicle_id': vid,
                     'station_id': station_id,
                     'direction': direction,
-                    'analysis': module_analysis
+                    'analysis': enhanced_module_analysis
                 })
 
                 print('记录详细信息')
@@ -737,10 +736,14 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
             for t in a_matrix_p_up[s][s_dest]:
                 remaining_passengers += a_matrix_p_up[s][s_dest][t]
 
+    remaining_passengers_up = remaining_passengers
+
     for s in a_matrix_f_up:
         for s_dest in a_matrix_f_up[s]:
             for t in a_matrix_f_up[s][s_dest]:
                 remaining_freights += a_matrix_f_up[s][s_dest][t]
+
+    remaining_freights_up = remaining_freights
 
     # 计算下行剩余需求
     for s in a_matrix_p_down:
@@ -748,15 +751,21 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
             for t in a_matrix_p_down[s][s_dest]:
                 remaining_passengers += a_matrix_p_down[s][s_dest][t]
 
+    remaining_passengers_down = remaining_passengers - remaining_passengers_up
+
     for s in a_matrix_f_down:
         for s_dest in a_matrix_f_down[s]:
             for t in a_matrix_f_down[s][s_dest]:
                 remaining_freights += a_matrix_f_down[s][s_dest][t]
 
+    remaining_freights_down = remaining_freights - remaining_freights_up
+
     # ==================== 新增逻辑：开始 ====================
     print(f"✅ 仿真完成 - 总成本: {total_cost:.2f}")
-    print(f"   服务乘客: {total_served_passengers}, 服务货物: {total_served_freight}")
-    print(f"   剩余乘客: {remaining_passengers}, 剩余货物: {remaining_freights}")
+    print(f"   系统服务乘客: {total_served_passengers}, 系统服务货物: {total_served_freight}")
+    print(f"   up剩余乘客: {remaining_passengers_up}, up剩余货物: {remaining_freights_up}")
+    print(f"   down剩余乘客: {remaining_passengers_down}, down剩余货物: {remaining_freights_down}")
+    print(f"   系统剩余乘客: {remaining_passengers}, 系统剩余货物: {remaining_freights}")
     # ==================== 新增逻辑：结束 ====================
 
     df_enriched = pd.DataFrame(df_enriched)
@@ -846,20 +855,20 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
             current_p_modules = individual[direction]["initial_allocation"][vid]["passenger_modules"]
             current_f_modules = individual[direction]["initial_allocation"][vid]["freight_modules"]
 
-            print('--------之前---------')
-            print('current_p_modules:', current_p_modules)
-            print('current_f_modules:', current_f_modules)
-            print('--------之前---------')
+            # print('--------之前---------')
+            # print('current_p_modules:', current_p_modules)
+            # print('current_f_modules:', current_f_modules)
+            # print('--------之前---------')
 
             next_p = 0
             next_f = 0
 
-            print('vid:', vid)
+            # print('vid:', vid)
 
             for sid in range(vehicle["num_stations"]):
-                print('sid:', sid)
+                # print('sid:', sid)
                 station_id = sid + offset
-                print('station_id:', station_id)
+                # print('station_id:', station_id)
 
                 # print('起始站点station_id:', station_id)
 
@@ -882,8 +891,8 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                 onboard_p_after = sum(sum(p.values()) for p in onboard_passengers.values())
                 onboard_f_after = sum(sum(f.values()) for f in onboard_freight.values())
 
-                print('onboard_p_after:', onboard_p_after)
-                print('onboard_f_after:', onboard_f_after)
+                # print('onboard_p_after:', onboard_p_after)
+                # print('onboard_f_after:', onboard_f_after)
 
                 waiting_p = 0
                 waiting_f = 0
@@ -911,19 +920,19 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                     waiting_pass=waiting_p, waiting_cargo=waiting_f
                 )
 
-                print('current_p_modules:', current_p_modules)
-                print('current_f_modules:', current_f_modules)
+                # print('current_p_modules:', current_p_modules)
+                # print('current_f_modules:', current_f_modules)
 
                 # 【关键修改】从个体中读取预先确定的模块调整量
                 try:
                     delta_p = individual[direction]["module_adjustments"][vid][station_id]["delta_p"]
                     delta_f = individual[direction]["module_adjustments"][vid][station_id]["delta_f"]
-                    print('delta_p:', delta_p)
-                    print('delta_f:', delta_f)
+                    # print('delta_p:', delta_p)
+                    # print('delta_f:', delta_f)
                 except KeyError:
-                    print('station_id:', station_id)
-                    print('vid:', vid)
-                    print('个体中缺少调整策略，则视作0调整')
+                    # print('station_id:', station_id)
+                    # print('vid:', vid)
+                    # print('个体中缺少调整策略，则视作0调整')
                     # 如果个体中缺少调整策略，则视作0调整
                     delta_p = 0
                     delta_f = 0
@@ -945,6 +954,9 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                 station_module_stock_before = station_module_stock[station_id]["modules"]
                 station_module_stock[station_id]["modules"] -= (delta_p + delta_f)
                 station_module_stock_after = station_module_stock[station_id]["modules"]
+
+                if station_module_stock_after < 0:
+                    print('逆天了 竟然小于0')
 
                 # 5. 上下车逻辑 (与原函数一致)
                 available_p_capacity = adjusted_p_capacity - onboard_p_after
@@ -1078,24 +1090,35 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
             for t in a_matrix_p_up[s][s_dest]:
                 remaining_passengers += a_matrix_p_up[s][s_dest][t]
 
+    remaining_passengers_up = remaining_passengers
+
     for s in a_matrix_f_up:
         for s_dest in a_matrix_f_up[s]:
             for t in a_matrix_f_up[s][s_dest]:
                 remaining_freights += a_matrix_f_up[s][s_dest][t]
+
+    remaining_freights_up = remaining_freights
 
     for s in a_matrix_p_down:
         for s_dest in a_matrix_p_down[s]:
             for t in a_matrix_p_down[s][s_dest]:
                 remaining_passengers += a_matrix_p_down[s][s_dest][t]
 
+    remaining_passengers_down = remaining_passengers - remaining_passengers_up
+
     for s in a_matrix_f_down:
         for s_dest in a_matrix_f_down[s]:
             for t in a_matrix_f_down[s][s_dest]:
                 remaining_freights += a_matrix_f_down[s][s_dest][t]
 
+    remaining_freights_down = remaining_freights - remaining_freights_up
+
     print(f"✅ 评估仿真完成 - 总成本: {total_cost:.2f}")
     print('cost_components:', cost_components)
-    print(f"   剩余乘客: {remaining_passengers}, 剩余货物: {remaining_freights}")
+    # print(f"   系统服务乘客: {total_served_passengers}, 系统服务货物: {total_served_freight}")
+    print(f"   up剩余乘客: {remaining_passengers_up}, up剩余货物: {remaining_freights_up}")
+    print(f"   down剩余乘客: {remaining_passengers_down}, down剩余货物: {remaining_freights_down}")
+    print(f"   系统剩余乘客: {remaining_passengers}, 系统剩余货物: {remaining_freights}")
     df_enriched = pd.DataFrame(df_enriched)
 
     return vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components

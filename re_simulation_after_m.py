@@ -64,6 +64,8 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
     if mutated_vehicle_index is None:
         raise ValueError(f"未找到变异车辆: {direction}-{vehicle_id}")
 
+    print('变异车辆序号(时间排序后)(这里还是索引):', mutated_vehicle_index, '变异站点:', mutated_station_id)
+
     # 初始化结果记录
     simulation_results = {
         "pre_mutation_cost": 0,
@@ -91,6 +93,7 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
     pre_mutation_cost = 0
 
     for vehicle_idx in range(mutated_vehicle_index):
+        print(f"  ✅ 车辆{vehicle['global_vid']}({vehicle['direction']}) 开始仿真")
         vehicle = all_vehicles[vehicle_idx]
 
         cost, updated_states = simulate_vehicle_with_original_plan(
@@ -267,7 +270,7 @@ def simulate_vehicle_with_original_plan(vehicle, individual, parameters,
             return float('inf'), {"last_departure_time": arrival_time}
 
         # 执行站点仿真
-        print('执行站点仿真---')
+        # print('执行站点仿真---')
         station_cost, station_state = execute_station_simulation_core(
             station_id, arrival_time, onboard_passengers, onboard_freight,
             adjusted_p_modules, adjusted_f_modules,
@@ -275,7 +278,7 @@ def simulate_vehicle_with_original_plan(vehicle, individual, parameters,
             station_module_stock, delta_p, delta_f
         )
 
-        print('计算相关成本---')
+        # print('计算相关成本---')
         total_cost += station_cost
         current_p_modules = adjusted_p_modules
         current_f_modules = adjusted_f_modules
@@ -364,8 +367,8 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
 
         else:
             # === 变异站点及之后：重新优化调度方案 ===
+            print('变异站点及之后 重新计算 分析当前状态并重新计算模块需求')
 
-            # 分析当前状态并重新计算模块需求
             module_analysis = analyze_station_requirements(
                 station_id, arrival_time, onboard_passengers, onboard_freight,
                 current_p_modules, current_f_modules, station_module_stock,
@@ -374,11 +377,14 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
 
             if station_id == mutated_station_id:
                 # 变异站点：使用变异后的调整值
+                print('变异站点：使用变异后的调整值')
                 delta_p = updated_individual[direction]["module_adjustments"][vid][station_id].get("delta_p", 0)
                 delta_f = updated_individual[direction]["module_adjustments"][vid][station_id].get("delta_f", 0)
+                print('delta_p:', delta_p, 'delta_f:', delta_f)
             else:
                 # 其他站点：基于分析结果重新生成最优调整
-                _, _, delta_p, delta_f = module_system.generate_feasible_module_allocation(module_analysis)
+                # _, _, delta_p, delta_f, _ = module_system.generate_feasible_module_allocation(module_analysis)
+                adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, module_analysis_ = module_system.generate_feasible_module_allocation(module_analysis)
 
                 # 更新染色体
                 updated_individual[direction]["module_adjustments"][vid][station_id] = {
@@ -474,8 +480,12 @@ def simulate_vehicle_with_reoptimization(vehicle, updated_individual, parameters
             a_matrix_p, a_matrix_f, num_stations + offset, parameters, module_system
         )
 
-        # 生成最优调整方案（优化：优先满足更多等待需求）
-        _, _, delta_p, delta_f = optimize_module_allocation(module_analysis, parameters)
+        # **** 修改核心：调用 generate_feasible_module_allocation ****
+        # 2. 生成最优调整方案
+        adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, module_analysis_ = module_system.generate_feasible_module_allocation(module_analysis)
+
+        # # 生成最优调整方案（优化：优先满足更多等待需求）
+        # _, _, delta_p, delta_f = optimize_module_allocation(module_analysis, parameters)
 
         # 更新染色体
         updated_individual[direction]["module_adjustments"][vid][station_id] = {
@@ -550,6 +560,13 @@ def execute_station_simulation_core(station_id, arrival_time, onboard_passengers
     station_module_stock[station_id]["modules"] -= (delta_p + delta_f)
     station_module_stock_after = station_module_stock[station_id]["modules"]
 
+    if station_module_stock_after < 0:
+        print('终于找着了')
+
+    print(f"  站点 {station_id} 库存更新: 原始库存={station_module_stock_before}, "
+          f"车辆模块变化 (p:{delta_p}, f:{delta_f}), "
+          f"更新后库存={station_module_stock_after}")
+
     # 3. 上车操作（复用主仿真的上车逻辑）
     adjusted_p_capacity = p_modules * parameters["passenger_per_module"]
     adjusted_f_capacity = f_modules * parameters["freight_per_module"]
@@ -559,6 +576,7 @@ def execute_station_simulation_core(station_id, arrival_time, onboard_passengers
 
     boarded_p = 0
     boarded_f = 0
+
     served_passenger_waiting_time = 0
     served_freight_waiting_time = 0
 
@@ -656,9 +674,13 @@ def analyze_station_requirements(station_id, arrival_time, onboard_passengers, o
     alighted_p = sum(sum(p_dict.values()) for dest, p_dict in onboard_passengers.items() if dest == station_id)
     alighted_f = sum(sum(f_dict.values()) for dest, f_dict in onboard_freight.items() if dest == station_id)
 
-    # 计算下车后状态
-    onboard_p_after = onboard_p_before - alighted_p
-    onboard_f_after = onboard_f_before - alighted_f
+    # 执行下车操作
+    onboard_passengers.pop(station_id, None)
+    onboard_freight.pop(station_id, None)
+
+    # 计算下车后在车数量
+    onboard_p_after = sum(sum(p.values()) for p in onboard_passengers.values())
+    onboard_f_after = sum(sum(f.values()) for f in onboard_freight.values())
 
     # 计算等待需求
     waiting_p = 0
@@ -708,6 +730,22 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
     onboard_p_after = sum(sum(p.values()) for p in onboard_passengers.values() if p != station_id)
     onboard_f_after = sum(sum(f.values()) for f in onboard_freight.values() if f != station_id)
 
+    # 计算在车数量（下车前）
+    onboard_p_before = sum(sum(p.values()) for p in onboard_passengers.values())
+    onboard_f_before = sum(sum(f.values()) for f in onboard_freight.values())
+
+    # 计算下车数量
+    alighted_p = sum(sum(p_dict.values()) for dest, p_dict in onboard_passengers.items() if dest == station_id)
+    alighted_f = sum(sum(f_dict.values()) for dest, f_dict in onboard_freight.items() if dest == station_id)
+
+    # 执行下车操作
+    onboard_passengers.pop(station_id, None)
+    onboard_freight.pop(station_id, None)
+
+    # 计算下车后在车数量
+    onboard_p_after = sum(sum(p.values()) for p in onboard_passengers.values())
+    onboard_f_after = sum(sum(f.values()) for f in onboard_freight.values())
+
     # 计算调整后容量
     adjusted_p_capacity = adjusted_p_modules * parameters["passenger_per_module"]
     adjusted_f_capacity = adjusted_f_modules * parameters["freight_per_module"]
@@ -721,7 +759,8 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
 
     # 检查模块总数约束
     total_modules = adjusted_p_modules + adjusted_f_modules
-    if total_modules < parameters.get("alpha", 0) or total_modules > parameters.get("beta", 5):
+    if total_modules > parameters.get("beta", 5):
+    # if total_modules < parameters.get("alpha", 0) or total_modules > parameters.get("beta", 5):
         print('total_modules:', total_modules)
         print('超出模块数量约束')
         return False
@@ -807,8 +846,10 @@ def optimize_module_allocation(module_analysis, parameters):
     """
     current_p_modules = module_analysis['station_info']['current_p_modules']
     current_f_modules = module_analysis['station_info']['current_f_modules']
+
     delta_p_min, delta_p_max = module_analysis['adjustment_ranges']['passenger_modules']['delta_range']
     delta_f_min, delta_f_max = module_analysis['adjustment_ranges']['freight_modules']['delta_range']
+
     waiting_pass = module_analysis['passenger_analysis']['waiting']
     waiting_cargo = module_analysis['freight_analysis']['waiting']
 

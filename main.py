@@ -38,7 +38,7 @@ def main():
         print("🔄 正在加载需求数据...")
 
         # 指定需求数据文件路径（需要先运行data_generator.py生成）
-        demand_data_file = "demand_data_20250720_174147.json"  # 请根据实际生成的文件名修改
+        demand_data_file = "demand_data_20250705_213324.json"  # 请根据实际生成的文件名修改
 
         # print("🔄 需求数据加载成功...", demand_data_file)
 
@@ -56,16 +56,26 @@ def main():
             all_passengers = 0
             all_freights = 0
 
+            all_passengers_up = 0
+            all_freights_up = 0
+
+            all_passengers_dwon = 0
+            all_freights_down = 0
+
             # 计算上行剩余需求
             for s in a_matrix_p_up:
                 for s_dest in a_matrix_p_up[s]:
                     for t in a_matrix_p_up[s][s_dest]:
                         all_passengers += a_matrix_p_up[s][s_dest][t]
 
+            all_passengers_up = all_passengers
+
             for s in a_matrix_f_up:
                 for s_dest in a_matrix_f_up[s]:
                     for t in a_matrix_f_up[s][s_dest]:
                         all_freights += a_matrix_f_up[s][s_dest][t]
+
+            all_freights_up = all_freights
 
             # 计算下行剩余需求
             for s in a_matrix_p_down:
@@ -73,13 +83,19 @@ def main():
                     for t in a_matrix_p_down[s][s_dest]:
                         all_passengers += a_matrix_p_down[s][s_dest][t]
 
+            all_passengers_dwon = all_passengers - all_passengers_up
+
             for s in a_matrix_f_down:
                 for s_dest in a_matrix_f_down[s]:
                     for t in a_matrix_f_down[s][s_dest]:
                         all_freights += a_matrix_f_down[s][s_dest][t]
 
+            all_freights_down = all_freights - all_freights_up
+
             print(f"✅ 仿真之前 ")
-            print(f"   总乘客: {all_passengers}, 总货物: {all_freights}")
+            print(f"   up总乘客: {all_passengers_up}, up总货物: {all_freights_up}")
+            print(f"   down总乘客: {all_passengers_dwon}, down总货物: {all_freights_down}")
+            print(f"   系统总乘客: {all_passengers}, 系统总货物: {all_freights}")
 
         except FileNotFoundError:
             print(f"⚠️ 需求数据文件 {demand_data_file} 不存在")
