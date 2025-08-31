@@ -90,7 +90,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         print('fit_value:', fit)
         ind.fitness.values = fit
         # 存储模块调整范围信息到个体中，供后续变异使用
-        ind.adjustment_ranges = module_adjustment_ranges
+        # ind.adjustment_ranges = module_adjustment_ranges
 
     # 记录初始种群评估结果
     feasible = [ind.fitness.values[0] for ind in population if math.isfinite(ind.fitness.values[0])]

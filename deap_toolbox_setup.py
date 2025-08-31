@@ -155,7 +155,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
         # ==================== 核心修正：开始 ====================
         # 从个体自身获取 adjustment_ranges，而不是依赖函数参数传递
         # 使用 .get() 方法可以安全地处理个体可能没有此属性的情况
-        adjustment_ranges = individual.get("adjustment_ranges")
+        # adjustment_ranges = individual.get("adjustment_ranges")
         # ==================== 核心修正：结束 ====================
 
         headway_changed = False
@@ -166,7 +166,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
         mutated_station_id = None
 
         # 1. 随机选择一种变异类型：0=初始模块配置，1=车头时距，2=模块调整
-        mutate_type = random.randint(0, 2)
+        mutate_type = random.randint(0, 1)
 
         print('mutate_type:', mutate_type)
 
@@ -177,6 +177,11 @@ def setup_deap_toolbox(parameters, global_demand_data):
             if vehicle_ids:
                 # 随机选择一班车辆
                 vehicle_id = random.choice(vehicle_ids)
+
+                print('初始模块配置变异前:' )
+                print('初始模块配置变异前(乘客模块):', individual[direction]["initial_allocation"][vehicle_id]['passenger_modules'])
+                print('初始模块配置变异前(货物模块):', individual[direction]["initial_allocation"][vehicle_id]['freight_modules'])
+
                 max_modules = parameters['max_modules']
                 total_modules = random.randint(1, max_modules)
                 passenger_modules = random.randint(0, total_modules)
@@ -187,6 +192,10 @@ def setup_deap_toolbox(parameters, global_demand_data):
                     "passenger_modules": passenger_modules,
                     "freight_modules": freight_modules
                 }
+
+                print('初始模块配置变异后更新到染色体上:')
+                print('初始模块配置变异前(乘客模块):', individual[direction]["initial_allocation"][vehicle_id]['passenger_modules'])
+                print('初始模块配置变异前(货物模块):', individual[direction]["initial_allocation"][vehicle_id]['freight_modules'])
 
                 # 已经更新了修改的部分 需要完整更新染色体
                 initial_allocation_changed = True
@@ -203,11 +212,15 @@ def setup_deap_toolbox(parameters, global_demand_data):
             if vehicle_ids:
                 vehicle_id = random.choice(vehicle_ids)
                 old_hw = individual[direction]["vehicle_dispatch"][vehicle_id]["headway"]
+
+                print('车头时距变异前:', old_hw)
                 delta_hw = random.randint(-3, 3)
                 new_hw = max(1, old_hw + delta_hw)
                 individual[direction]["vehicle_dispatch"][vehicle_id]["headway"] = new_hw
                 recalculate_arrival_times(individual, direction)
                 headway_changed = True
+
+                print('车头时距变异后:', new_hw)
 
                 print('车头时距变异')
 
@@ -267,8 +280,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         mutated_direction = direction
                         mutated_vehicle_id = vehicle_id
                         mutated_station_id = station_id
-                        print(
-                            f'模块调整联动变异: V:{vehicle_id}, S:{station_id}, new_delta_p:{new_delta_p}, new_delta_f:{new_delta_f}')
+                        print(f'模块调整联动变异: V:{vehicle_id}, S:{station_id}, new_delta_p:{new_delta_p}, new_delta_f:{new_delta_f}')
         # elif mutate_type == 2:
         #     # === 模块调整变异 ===
         #     if adjustment_ranges:
@@ -363,7 +375,6 @@ def setup_deap_toolbox(parameters, global_demand_data):
                             "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],
                             "freight_modules": analysis['adjustment_ranges']['freight_modules']
                         }
-
 
                 # 3. 将新生成的调整策略和范围完整更新到个体(染色体)中
                 individual["up"]["module_adjustments"] = module_adjustments.get("up", {})
