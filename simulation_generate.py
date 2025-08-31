@@ -1121,6 +1121,8 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
     print(f"   系统剩余乘客: {remaining_passengers}, 系统剩余货物: {remaining_freights}")
     df_enriched = pd.DataFrame(df_enriched)
 
+
+
     return vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components
 
 

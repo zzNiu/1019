@@ -83,6 +83,51 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
             fitness = total_cost
 
+            # ==================== 在这里添加转换逻辑 (开始) ====================
+            # 这段代码与您在初始种群生成时使用的逻辑完全相同
+
+            print("✅ 评估函数内部：正在将分析记录列表转换为字典结构...")
+
+            # 从仿真结果中提取module_adjustments和adjustment_ranges
+            module_adjustments = {"up": {}, "down": {}}
+            adjustment_ranges = {"up": {}, "down": {}}
+
+            # 处理仿真记录，提取模块调整信息
+            for record in module_analysis_records:
+                vehicle_id = record['vehicle_id']
+                station_id = record['station_id']
+                direction = record['direction']
+                analysis = record['analysis']
+
+                # 初始化车辆记录
+                if vehicle_id not in module_adjustments[direction]:
+                    module_adjustments[direction][vehicle_id] = {}
+                    adjustment_ranges[direction][vehicle_id] = {}
+
+                # 提取建议的模块分配 (这部分逻辑用于 individual["..."]["module_adjustments"])
+                if 'suggested_next_allocation' in analysis:
+                    suggested = analysis['suggested_next_allocation']
+                    current_p = analysis['station_info']['current_p_modules']
+                    current_f = analysis['station_info']['current_f_modules']
+
+                    delta_p = suggested['passenger_modules'] - current_p
+                    delta_f = suggested['freight_modules'] - current_f
+
+                    module_adjustments[direction][vehicle_id][station_id] = {
+                        "delta_p": delta_p,
+                        "delta_f": delta_f
+                    }
+
+                # 将完整的分析结果字典存储起来
+                adjustment_ranges[direction][vehicle_id][station_id] = analysis
+
+            # 将生成的调整策略更新到个体内部 (这一步可选，取决于您的设计)
+            # 如果您希望评估函数也更新个体的 module_adjustments，可以保留这两行
+            individual["up"]["module_adjustments"] = module_adjustments["up"]
+            individual["down"]["module_adjustments"] = module_adjustments["down"]
+
+            # ==================== 添加转换逻辑 (结束) ====================
+
             return (fitness,), failure_records, module_analysis_records
 
         except Exception as e:
@@ -306,12 +351,6 @@ def setup_deap_toolbox(parameters, global_demand_data):
                     # 'suggested_next_allocation' 是仿真中为下一站实际决定的模块数
                     if 'suggested_next_allocation' in analysis:
                         suggested = analysis['suggested_next_allocation']
-                        # current_p = analysis['station_info']['current_p_modules']
-                        # current_f = analysis['station_info']['current_f_modules']
-
-                        # # 计算并记录实际发生的模块数量变化
-                        # delta_p = suggested['passenger_modules'] - current_p
-                        # delta_f = suggested['freight_modules'] - current_f
 
                         module_adjustments[direction][vehicle_id][station_id] = {
                             "delta_p": suggested['delta_p'],

@@ -59,7 +59,7 @@ def main():
             all_passengers_up = 0
             all_freights_up = 0
 
-            all_passengers_dwon = 0
+            all_passengers_down = 0
             all_freights_down = 0
 
             # 计算上行剩余需求
