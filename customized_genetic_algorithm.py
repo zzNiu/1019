@@ -138,7 +138,8 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
                 # del mutant.fitness.values
                 # 清除调整范围信息，因为个体已经改变
-                if hasattr(mutant, 'adjustment_ranges'):
+                # if hasattr(mutant, 'adjustment_ranges'):
+                if 'adjustment_ranges' in mutant:
                     delattr(mutant, 'adjustment_ranges')
 
         # 评估和处理不可行个体
@@ -173,10 +174,10 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                             #     toolbox.mate(new_ind, toolbox.clone(parent2), parameters, global_demand_data)
 
                             # 应用变异
-                            if hasattr(parent1, 'adjustment_ranges'):
-                                toolbox.mutate(new_ind, parameters, global_demand_data)
-                            else:
-                                toolbox.mutate(new_ind, parameters, global_demand_data)
+                            # if hasattr(parent1, 'adjustment_ranges'):
+                            #     toolbox.mutate(new_ind, parameters, global_demand_data)
+                            # else:
+                            toolbox.mutate(new_ind, parameters, global_demand_data)
                         else:
                             # 没有足够的可行父本，生成新个体
                             new_ind = toolbox.individual()
@@ -379,8 +380,8 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
 
 def check_station_info_existence(offspring_population, current_gen):
     """
-    封装的检查函数，用于验证一个种群中所有个体的 adjustment_ranges 内部
-    是否都完整地包含了 'station_info' 键。
+    封装的检查函数，用于验证一个种群中所有个体的内部数据
+    是否都完整地包含了 'adjustment_ranges' 键。
 
     Args:
         offspring_population (list): 需要被检查的子代种群。
@@ -394,23 +395,23 @@ def check_station_info_existence(offspring_population, current_gen):
 
     # 遍历种群中的每一个个体
     for idx, individual in enumerate(offspring_population):
-        # 首先，必须确保个体拥有 'adjustment_ranges' 属性，否则无法继续检查
-        if not hasattr(individual, 'adjustment_ranges'):
+        # 核心修正：使用 'in' 关键字检查 'adjustment_ranges' 是否是 'individual' 的一个键
+        if 'adjustment_ranges' not in individual:
             # 这种情况可能发生在个体未经评估就进入了下一代，是潜在的数据问题
-            print(f"⚠️ 警告: 个体 {idx + 1} 缺少 'adjustment_ranges' 属性，无法检查。")
+            print(f"⚠️ 警告: 个体 {idx + 1} 缺少 'adjustment_ranges' 键，无法检查。")
             is_fully_valid = False
             continue  # 跳过此个体的后续检查
 
         # 遍历 'up' 和 'down' 两个方向
         for direction in ['up', 'down']:
             # 检查方向数据是否存在
-            if direction not in individual.adjustment_ranges:
+            if direction not in individual['adjustment_ranges']: # 注意这里也要用键访问
                 print(f"⚠️ 警告: 个体 {idx + 1} 的 'adjustment_ranges' 中缺少 '{direction}' 方向的数据。")
                 is_fully_valid = False
                 continue
 
             # 遍历该方向下的所有车辆
-            for vehicle_id, vehicle_data in individual.adjustment_ranges[direction].items():
+            for vehicle_id, vehicle_data in individual['adjustment_ranges'][direction].items():
                 # 遍历该车辆的所有站点记录
                 for station_id, station_data in vehicle_data.items():
                     # 核心检查：判断 'station_info' 键是否存在
@@ -427,3 +428,54 @@ def check_station_info_existence(offspring_population, current_gen):
 
     print("--- 完整性检查结束 ---\n")
     return is_fully_valid
+
+# def check_station_info_existence(offspring_population, current_gen):
+#     """
+#     封装的检查函数，用于验证一个种群中所有个体的 adjustment_ranges 内部
+#     是否都完整地包含了 'station_info' 键。
+#
+#     Args:
+#         offspring_population (list): 需要被检查的子代种群。
+#         current_gen (int): 当前的进化代数，用于在日志中清晰地报告问题。
+#
+#     Returns:
+#         bool: 如果所有个体都通过检查，返回 True；否则返回 False。
+#     """
+#     print(f"\n--- [第 {current_gen} 代] 开始检查子代 'station_info' 完整性 ---")
+#     is_fully_valid = True  # 初始化标志位，假设所有个体都是有效的
+#
+#     # 遍历种群中的每一个个体
+#     for idx, individual in enumerate(offspring_population):
+#         # 首先，必须确保个体拥有 'adjustment_ranges' 属性，否则无法继续检查
+#         if not hasattr(individual, 'adjustment_ranges'):
+#             # 这种情况可能发生在个体未经评估就进入了下一代，是潜在的数据问题
+#             print(f"⚠️ 警告: 个体 {idx + 1} 缺少 'adjustment_ranges' 属性，无法检查。")
+#             is_fully_valid = False
+#             continue  # 跳过此个体的后续检查
+#
+#         # 遍历 'up' 和 'down' 两个方向
+#         for direction in ['up', 'down']:
+#             # 检查方向数据是否存在
+#             if direction not in individual.adjustment_ranges:
+#                 print(f"⚠️ 警告: 个体 {idx + 1} 的 'adjustment_ranges' 中缺少 '{direction}' 方向的数据。")
+#                 is_fully_valid = False
+#                 continue
+#
+#             # 遍历该方向下的所有车辆
+#             for vehicle_id, vehicle_data in individual.adjustment_ranges[direction].items():
+#                 # 遍历该车辆的所有站点记录
+#                 for station_id, station_data in vehicle_data.items():
+#                     # 核心检查：判断 'station_info' 键是否存在
+#                     if 'station_info' not in station_data:
+#                         print(f"❌ 错误: 在个体 {idx + 1} 的 'adjustment_ranges' -> '{direction}' -> "
+#                               f"车辆 '{vehicle_id}' -> 站点 '{station_id}' 中, 未找到 'station_info' 键。")
+#                         is_fully_valid = False  # 发现问题，将标志位置为 False
+#
+#     # 循环结束后，根据标志位的最终状态打印总结信息
+#     if is_fully_valid:
+#         print(f"✅ 检查通过: 第 {current_gen} 代所有子代个体的 'station_info' 均存在。")
+#     else:
+#         print(f"❌ 检查未通过: 第 {current_gen} 代存在数据不完整的个体。")
+#
+#     print("--- 完整性检查结束 ---\n")
+#     return is_fully_valid
