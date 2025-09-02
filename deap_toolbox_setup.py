@@ -1,6 +1,9 @@
 # DEAP工具箱设置模块
 from deap import base, creator, tools
 
+import json
+from deepdiff import DeepDiff
+
 import random
 import copy
 
@@ -166,9 +169,12 @@ def setup_deap_toolbox(parameters, global_demand_data):
         mutated_station_id = None
 
         # 1. 随机选择一种变异类型：0=初始模块配置，1=车头时距，2=模块调整
-        mutate_type = random.randint(0, 2)
+        # mutate_type = random.randint(0, 1)
+        mutate_type = 0
 
         print('mutate_type:', mutate_type)
+
+        individual_initial_before = copy.deepcopy(individual)
 
         if mutate_type == 0:
             # === 初始模块配置变异 ===
@@ -182,15 +188,32 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 print('初始模块配置变异前(乘客模块):', individual[direction]["initial_allocation"][vehicle_id]['passenger_modules'])
                 print('初始模块配置变异前(货物模块):', individual[direction]["initial_allocation"][vehicle_id]['freight_modules'])
 
-                max_modules = parameters['max_modules']
-                total_modules = random.randint(1, max_modules)
-                passenger_modules = random.randint(0, total_modules)
-                freight_modules = total_modules - passenger_modules
+                original_passenger = individual[direction]["initial_allocation"][vehicle_id]['passenger_modules']
+                original_freight = individual[direction]["initial_allocation"][vehicle_id]['freight_modules']
+
+                # 3. 使用 while 循环，直到生成与原始值不同的新配置
+                while True:
+                    max_modules = parameters.get('max_modules', 10)  # 使用 .get() 更安全
+                    total_modules = random.randint(1, max_modules)
+                    new_passenger = random.randint(0, total_modules)
+                    new_freight = total_modules - new_passenger
+
+                    # 核心检查：当且仅当新配置与旧配置不同时，才跳出循环
+                    if new_passenger != original_passenger or new_freight != original_freight:
+                        print(f"生成了有效的新配置: 乘客模块={new_passenger}, 货物模块={new_freight}")
+                        break
+                    else:
+                        print(f"生成了重复配置 (乘客={new_passenger}, 货物={new_freight})，正在重试...")
+
+                # max_modules = parameters['max_modules']
+                # total_modules = random.randint(1, max_modules)
+                # passenger_modules = random.randint(0, total_modules)
+                # freight_modules = total_modules - passenger_modules
 
                 # 更新到染色体上
                 individual[direction]["initial_allocation"][vehicle_id] = {
-                    "passenger_modules": passenger_modules,
-                    "freight_modules": freight_modules
+                    "passenger_modules": new_passenger,
+                    "freight_modules": new_freight
                 }
 
                 print('初始模块配置变异后更新到染色体上:')
@@ -202,6 +225,17 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
                 print('初始模块配置变异')
 
+            individual_initial_after = individual
+
+            diff_ = DeepDiff(individual_initial_before, individual_initial_after, ignore_order=True)
+
+            # 打印结果
+            if not diff_:
+                print("✅ 染色体--初始配置--变异----没有----更新")
+            else:
+                print("⚠️ 染色体--初始配置--变异----已经----更新")
+                print(json.dumps(diff_, indent=2, ensure_ascii=False))
+
         # === 车头时距变异 ===
         elif mutate_type == 1:
 
@@ -209,13 +243,15 @@ def setup_deap_toolbox(parameters, global_demand_data):
             direction = random.choice(["up", "down"])
             vehicle_ids = list(individual[direction]["vehicle_dispatch"].keys())
 
+            # individual_initial_before = individual
+
             if vehicle_ids:
                 vehicle_id = random.choice(vehicle_ids)
                 old_hw = individual[direction]["vehicle_dispatch"][vehicle_id]["headway"]
 
                 print('车头时距变异前:', old_hw)
-                delta_hw = random.randint(-3, 3)
-                new_hw = max(1, old_hw + delta_hw)
+                new_hw = random.randint(parameters['min_headway'], parameters['max_headway'])
+                # new_hw = max(1, old_hw + delta_hw)
                 individual[direction]["vehicle_dispatch"][vehicle_id]["headway"] = new_hw
                 recalculate_arrival_times(individual, direction)
                 headway_changed = True
@@ -224,9 +260,22 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
                 print('车头时距变异')
 
+            individual_initial_after = individual
+
+            diff_ = DeepDiff(individual_initial_before, individual_initial_after, ignore_order=True)
+
+            # 打印结果
+            if not diff_:
+                print("✅ 染色体--车头时距--变异----没有----更新")
+            else:
+                print("⚠️ 染色体--车头时距--变异----已经----更新")
+                print(json.dumps(diff_, indent=2, ensure_ascii=False))
+
         # === 模块调整变异 ===
-        # === 模块调整变异 (已修正) ===
         elif mutate_type == 2:
+
+            # individual_initial_before = individual
+
             if individual.get("adjustment_ranges"):
                 direction = random.choice(["up", "down"])
                 adjustment_ranges = individual["adjustment_ranges"]
@@ -281,6 +330,18 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         mutated_vehicle_id = vehicle_id
                         mutated_station_id = station_id
                         print(f'模块调整联动变异: V:{vehicle_id}, S:{station_id}, new_delta_p:{new_delta_p}, new_delta_f:{new_delta_f}')
+
+            individual_initial_after = individual
+
+            diff_ = DeepDiff(individual_initial_before, individual_initial_after, ignore_order=True)
+
+            # 打印结果
+            if not diff_:
+                print("⚠️ 染色体模块调整变异----没有----更新")
+            else:
+                print("✅ 染色体模块调整变异----已经----更新")
+                print(json.dumps(diff_, indent=2, ensure_ascii=False))
+
         # elif mutate_type == 2:
         #     # === 模块调整变异 ===
         #     if adjustment_ranges:
@@ -332,6 +393,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
             print("\U0001f501 开始仿真以更新变异后个体的适应度与调整范围...")
 
             try:
+                individual_before = individual
                 (vehicle_schedule, total_cost, remaining_passengers, remaining_freights,
                  failure_records, df_enriched, module_analysis_records, cost_components) = simulate_with_integrated_module_system(
                     individual, parameters, global_demand_data,
@@ -340,6 +402,17 @@ def setup_deap_toolbox(parameters, global_demand_data):
                     global_demand_data["freight_demand_up"],
                     global_demand_data["freight_demand_down"]
                 )
+                individual_after = individual
+
+                # 比较
+                diff = DeepDiff(individual_before, individual_after, ignore_order=True)
+
+                # 打印结果
+                if not diff:
+                    print("✅ 染色体未更新")
+                else:
+                    print("⚠️ 染色体发生更新")
+                    print(json.dumps(diff, indent=2, ensure_ascii=False))
 
                 print("🧬 变异后染色体更新：正在从仿真结果中提取 module_adjustments 和 adjustment_ranges...")
 

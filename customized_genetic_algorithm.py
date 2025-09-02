@@ -1,3 +1,8 @@
+from deepdiff import DeepDiff
+import json
+
+import copy
+
 import math
 import random
 import numpy as np
@@ -5,6 +10,9 @@ from deap import tools
 
 import os  # <--- 新增导入
 import matplotlib # <--- 新增导入
+
+# === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
+from plot_cost_stack import plot_cost_stack_from_history
 
 # === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
 from plot_cost_stack import plot_cost_stack_from_history
@@ -80,6 +88,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     # 初始种群评估 Evaluate initial population
 
     print('----进入遗传算法 步骤3: 初始种群评估----')
+    initial_population_before = population
     i = 1
     for ind in population:
         print(f'第 {i} 个个体')
@@ -91,6 +100,16 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         ind.fitness.values = fit
         # 存储模块调整范围信息到个体中，供后续变异使用
         # ind.adjustment_ranges = module_adjustment_ranges
+    initial_population_after = population
+
+    # 比较
+    diff = DeepDiff(initial_population_before, initial_population_after, ignore_order=True)
+
+    # 打印结果
+    if not diff:
+        print("✅ 初始种群数据未发生变化")
+    else:
+        print("⚠️ 初始种群数据发生变化：")
 
     # 记录初始种群评估结果
     feasible = [ind.fitness.values[0] for ind in population if math.isfinite(ind.fitness.values[0])]
@@ -103,6 +122,11 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         gen_min = gen_avg = gen_max = float('nan')
 
     print('初始种群评估完成')
+
+    # ==================== 在这里新增函数调用 ====================
+    # 调用封装好的函数，对生成的子代种群进行 'station_info' 完整性检查
+    check_station_info_existence(population, 0)
+    # ==========================================================
 
     # === 新增：记录第 0 代最优个体的成本构成 ===
     record_best_cost(population)
@@ -122,18 +146,30 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         offspring = list(map(toolbox.clone, offspring))
 
         # 变异
-        for mutant in offspring:
+        for idx, mutant in enumerate(offspring):
             if random.random() < mutpb:
                 # print('mutant["adjustment_ranges"]:', mutant["adjustment_ranges"])
-                print('变异了')
+                mutant_before = copy.deepcopy(mutant)
+                print(f"第{idx}个个体变异了")
                 # 如果个体有调整范围信息，传递给变异操作
                 # if hasattr(mutant, 'adjustment_ranges'):
                 #     toolbox.mutate(mutant, parameters, global_demand_data)
                 # else:
                 toolbox.mutate(mutant, parameters, global_demand_data)
-
+                mutant_after = mutant
                 # ==================== 修改/新增逻辑：开始 ====================
                 mutant.mutated = True  # 为变异后的个体打上标记
+
+                diff__ = DeepDiff(mutant_before, mutant_after, ignore_order=True)
+
+                # 打印结果
+                if not diff__:
+                    print("✅ 个体变异未更新")
+                else:
+                    print("⚠️ 个体变异已经更新")
+                    # print(json.dumps(diff__, indent=2, ensure_ascii=False))
+                    # print(diff__)  # 可以正常打印
+                    # print(json.dumps(diff__.to_dict(), indent=2, ensure_ascii=False))
                 # ==================== 修改/新增逻辑：结束 ====================
 
                 # del mutant.fitness.values
@@ -428,54 +464,3 @@ def check_station_info_existence(offspring_population, current_gen):
 
     print("--- 完整性检查结束 ---\n")
     return is_fully_valid
-
-# def check_station_info_existence(offspring_population, current_gen):
-#     """
-#     封装的检查函数，用于验证一个种群中所有个体的 adjustment_ranges 内部
-#     是否都完整地包含了 'station_info' 键。
-#
-#     Args:
-#         offspring_population (list): 需要被检查的子代种群。
-#         current_gen (int): 当前的进化代数，用于在日志中清晰地报告问题。
-#
-#     Returns:
-#         bool: 如果所有个体都通过检查，返回 True；否则返回 False。
-#     """
-#     print(f"\n--- [第 {current_gen} 代] 开始检查子代 'station_info' 完整性 ---")
-#     is_fully_valid = True  # 初始化标志位，假设所有个体都是有效的
-#
-#     # 遍历种群中的每一个个体
-#     for idx, individual in enumerate(offspring_population):
-#         # 首先，必须确保个体拥有 'adjustment_ranges' 属性，否则无法继续检查
-#         if not hasattr(individual, 'adjustment_ranges'):
-#             # 这种情况可能发生在个体未经评估就进入了下一代，是潜在的数据问题
-#             print(f"⚠️ 警告: 个体 {idx + 1} 缺少 'adjustment_ranges' 属性，无法检查。")
-#             is_fully_valid = False
-#             continue  # 跳过此个体的后续检查
-#
-#         # 遍历 'up' 和 'down' 两个方向
-#         for direction in ['up', 'down']:
-#             # 检查方向数据是否存在
-#             if direction not in individual.adjustment_ranges:
-#                 print(f"⚠️ 警告: 个体 {idx + 1} 的 'adjustment_ranges' 中缺少 '{direction}' 方向的数据。")
-#                 is_fully_valid = False
-#                 continue
-#
-#             # 遍历该方向下的所有车辆
-#             for vehicle_id, vehicle_data in individual.adjustment_ranges[direction].items():
-#                 # 遍历该车辆的所有站点记录
-#                 for station_id, station_data in vehicle_data.items():
-#                     # 核心检查：判断 'station_info' 键是否存在
-#                     if 'station_info' not in station_data:
-#                         print(f"❌ 错误: 在个体 {idx + 1} 的 'adjustment_ranges' -> '{direction}' -> "
-#                               f"车辆 '{vehicle_id}' -> 站点 '{station_id}' 中, 未找到 'station_info' 键。")
-#                         is_fully_valid = False  # 发现问题，将标志位置为 False
-#
-#     # 循环结束后，根据标志位的最终状态打印总结信息
-#     if is_fully_valid:
-#         print(f"✅ 检查通过: 第 {current_gen} 代所有子代个体的 'station_info' 均存在。")
-#     else:
-#         print(f"❌ 检查未通过: 第 {current_gen} 代存在数据不完整的个体。")
-#
-#     print("--- 完整性检查结束 ---\n")
-#     return is_fully_valid

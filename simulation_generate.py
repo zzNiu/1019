@@ -438,8 +438,8 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, enhanced_module_analysis = module_system.generate_feasible_module_allocation(module_analysis)
                 # print('执行之后')
 
-                print('打印调整结果和调整方案')
-                print('adjusted_p_modules', adjusted_p_modules, 'adjusted_f_modules', adjusted_f_modules, 'delta_p', delta_p, 'delta_f', delta_f)
+                # print('打印调整结果和调整方案')
+                # print('adjusted_p_modules', adjusted_p_modules, 'adjusted_f_modules', adjusted_f_modules, 'delta_p', delta_p, 'delta_f', delta_f)
 
                 # print(f"    模块调整: 乘客 {current_p_modules}->{adjusted_p_modules}({delta_p:+d}), 货物 {current_f_modules}->{adjusted_f_modules}({delta_f:+d})")
 
@@ -484,9 +484,9 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 station_module_stock_before = station_module_stock[station_id]["modules"]
                 station_module_stock[station_id]["modules"] -= (delta_p + delta_f)
                 station_module_stock_after = station_module_stock[station_id]["modules"]
-                print('station_module_stock_before:', station_module_stock_before)
-                print('delta_p:', delta_p, 'delta_f:', delta_f)
-                print('station_module_stock_after:', station_module_stock_after)
+                # print('station_module_stock_before:', station_module_stock_before)
+                # print('delta_p:', delta_p, 'delta_f:', delta_f)
+                # print('station_module_stock_after:', station_module_stock_after)
                 if station_module_stock_after < 0 :
                     print('逆天了 竟然小于0')
 
@@ -503,7 +503,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 #     return {}, float('inf'), 1e9, 1e9, failure_records, pd.DataFrame([]), []
 
                 # === 思路1核心：基于调整后的容量进行上车操作 ===
-                print('开始上车')
+                # print('开始上车')
                 # 7. 乘客上车逻辑（基于调整后的容量）
                 available_p_capacity = adjusted_p_capacity - onboard_p_after
                 boarded_p = 0
@@ -593,7 +593,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                         'delta_f': delta_f
                     }
 
-                print('module_analysis:', module_analysis)
+                # print('module_analysis:', module_analysis)
 
                 # 11. 记录模块分析结果
                 module_analysis_records.append({
@@ -604,7 +604,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                     'analysis': enhanced_module_analysis
                 })
 
-                print('记录详细信息')
+                # print('记录详细信息')
 
                 # 12. 记录详细信息（思路1：更新记录内容）
                 df_enriched.append({
