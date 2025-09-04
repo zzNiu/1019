@@ -170,7 +170,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
         # 1. 随机选择一种变异类型：0=初始模块配置，1=车头时距，2=模块调整
         # mutate_type = random.randint(0, 1)
-        mutate_type = 0
+        mutate_type = 2
 
         print('mutate_type:', mutate_type)
 
@@ -305,14 +305,16 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         # 3. 重新计算 p 的范围并生成新值
                         delta_p_min = p_min - p_n_k
                         delta_p_max = total_max - p_n_k - f_min
-                        new_delta_p = random.randint(delta_p_min, delta_p_max) if delta_p_min <= delta_p_max else delta_p_min
+                        new_delta_p = random.randint(delta_p_min, delta_p_max)
+                        # new_delta_p = random.randint(delta_p_min, delta_p_max) if delta_p_min <= delta_p_max else delta_p_min
 
                         # 4. 【核心联动逻辑】基于 new_delta_p，动态计算 f 的新范围
                         delta_f_min = f_min - f_n_k
                         new_delta_f_max = total_max - f_n_k - (p_n_k + new_delta_p)
 
                         # 5. 在新的联动范围内生成新值
-                        new_delta_f = random.randint(delta_f_min, new_delta_f_max) if delta_f_min <= new_delta_f_max else delta_f_min
+                        # new_delta_f = random.randint(delta_f_min, new_delta_f_max) if delta_f_min <= new_delta_f_max else delta_f_min
+                        new_delta_f = random.randint(delta_f_min, new_delta_f_max)
 
                         # 6. 更新个体染色体
                         # 确保路径存在
@@ -340,7 +342,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
                 print("⚠️ 染色体模块调整变异----没有----更新")
             else:
                 print("✅ 染色体模块调整变异----已经----更新")
-                print(json.dumps(diff_, indent=2, ensure_ascii=False))
+                print(diff_)
+                # print(json.dumps(diff_, indent=2, ensure_ascii=False))
 
         # elif mutate_type == 2:
         #     # === 模块调整变异 ===
@@ -443,11 +446,12 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         }
 
                     # 提取模块调整范围 (供下一次变异使用)
-                    if 'adjustment_ranges' in analysis:
-                        adjustment_ranges[direction][vehicle_id][station_id] = {
-                            "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],
-                            "freight_modules": analysis['adjustment_ranges']['freight_modules']
-                        }
+                    adjustment_ranges[direction][vehicle_id][station_id] = analysis
+                    # if 'adjustment_ranges' in analysis:
+                    #     adjustment_ranges[direction][vehicle_id][station_id] = {
+                    #         "passenger_modules": analysis['adjustment_ranges']['passenger_modules'],
+                    #         "freight_modules": analysis['adjustment_ranges']['freight_modules']
+                    #     }
 
                 # 3. 将新生成的调整策略和范围完整更新到个体(染色体)中
                 individual["up"]["module_adjustments"] = module_adjustments.get("up", {})

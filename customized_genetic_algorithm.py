@@ -173,10 +173,10 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 # ==================== 修改/新增逻辑：结束 ====================
 
                 # del mutant.fitness.values
-                # 清除调整范围信息，因为个体已经改变
-                # if hasattr(mutant, 'adjustment_ranges'):
-                if 'adjustment_ranges' in mutant:
-                    delattr(mutant, 'adjustment_ranges')
+                # 清除调整范围信息，因为个体已经改变（
+                # 在变异之后已经调用函数进行了计算和更新，所以不需要删除
+                # if 'adjustment_ranges' in mutant:
+                #     del mutant['adjustment_ranges']
 
         # 评估和处理不可行个体
         for i, ind in enumerate(offspring):
