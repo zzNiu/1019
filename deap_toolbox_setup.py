@@ -1,6 +1,8 @@
 # DEAP工具箱设置模块
 from deap import base, creator, tools
 
+from pprint import pprint
+
 import json
 from deepdiff import DeepDiff
 
@@ -169,8 +171,8 @@ def setup_deap_toolbox(parameters, global_demand_data):
         mutated_station_id = None
 
         # 1. 随机选择一种变异类型：0=初始模块配置，1=车头时距，2=模块调整
-        # mutate_type = random.randint(0, 1)
-        mutate_type = 2
+        mutate_type = random.randint(0, 2)
+        # mutate_type = 2
 
         print('mutate_type:', mutate_type)
 
@@ -274,19 +276,25 @@ def setup_deap_toolbox(parameters, global_demand_data):
         # === 模块调整变异 ===
         elif mutate_type == 2:
 
-            # individual_initial_before = individual
-
             if individual.get("adjustment_ranges"):
                 direction = random.choice(["up", "down"])
                 adjustment_ranges = individual["adjustment_ranges"]
 
-                print('individual["adjustment_ranges"]:', individual["adjustment_ranges"])
+                # print('individual["adjustment_ranges"]:', individual["adjustment_ranges"])
 
                 if direction in adjustment_ranges and adjustment_ranges[direction]:
                     vehicle_id = random.choice(list(adjustment_ranges[direction].keys()))
 
                     if vehicle_id in adjustment_ranges[direction] and adjustment_ranges[direction][vehicle_id]:
-                        station_id = random.choice(list(adjustment_ranges[direction][vehicle_id].keys()))
+
+                        # 取到该方向-车辆对应的全部 station 键
+                        stations = list(adjustment_ranges[direction][vehicle_id].keys())
+
+                        while True:
+                            station_id = random.choice(stations)
+                            if station_id != stations[-1]:  # 不是最后一个就跳出
+                                break
+                        # station_id = random.choice(list(adjustment_ranges[direction][vehicle_id].keys()))
 
                         # 1. 获取包含所有原始参数的“决策工具箱”
                         analysis_data = adjustment_ranges[direction][vehicle_id][station_id]
@@ -294,6 +302,10 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         print('vehicle_id:', vehicle_id)
                         print('station_id:', station_id)
                         print('analysis_data:', analysis_data)
+                        pprint(analysis_data, sort_dicts=False)
+                        # print('原调整方案:', individual[direction]['module_adjustments'][vehicle_id][station_id])
+                        print('原调整方案:')
+                        pprint(individual[direction]['module_adjustments'][vehicle_id][station_id], sort_dicts=False)
 
                         # 2. 提取原始参数用于重新计算
                         p_n_k = analysis_data['station_info']['current_p_modules']
@@ -315,6 +327,21 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         # 5. 在新的联动范围内生成新值
                         # new_delta_f = random.randint(delta_f_min, new_delta_f_max) if delta_f_min <= new_delta_f_max else delta_f_min
                         new_delta_f = random.randint(delta_f_min, new_delta_f_max)
+
+                        # 插入：检验新生成的方案合理性
+                        from simulation_generate import weizhi
+                        while True:
+                            if weizhi(f_n_k, p_n_k, new_delta_f, new_delta_p):
+                                print('不满足')
+                                break
+                            else:
+                                delta_p_min = p_min - p_n_k
+                                delta_p_max = total_max - p_n_k - f_min
+                                new_delta_p = random.randint(delta_p_min, delta_p_max)
+
+                                delta_f_min = f_min - f_n_k
+                                new_delta_f_max = total_max - f_n_k - (p_n_k + new_delta_p)
+                                new_delta_f = random.randint(delta_f_min, new_delta_f_max)
 
                         # 6. 更新个体染色体
                         # 确保路径存在
@@ -339,55 +366,12 @@ def setup_deap_toolbox(parameters, global_demand_data):
 
             # 打印结果
             if not diff_:
-                print("⚠️ 染色体模块调整变异----没有----更新")
+                print("⚠️ 染色体模块调整变异----没有----更新, 重新计算变异节点之后的调度计划")
             else:
                 print("✅ 染色体模块调整变异----已经----更新")
                 print(diff_)
                 # print(json.dumps(diff_, indent=2, ensure_ascii=False))
 
-        # elif mutate_type == 2:
-        #     # === 模块调整变异 ===
-        #     if adjustment_ranges:
-        #         direction = random.choice(["up", "down"])
-        #         if direction in adjustment_ranges:
-        #             vehicle_ids = list(adjustment_ranges[direction].keys())
-        #             if vehicle_ids:
-        #                 # 选择一班车辆
-        #                 vehicle_id = random.choice(vehicle_ids)
-        #                 station_ids = list(adjustment_ranges[direction][vehicle_id].keys())
-        #                 if station_ids:
-        #                     # 选择一个站点
-        #                     station_id = random.choice(station_ids)
-        #                     p_range = adjustment_ranges[direction][vehicle_id][station_id].get("passenger_modules", {})
-        #                     f_range = adjustment_ranges[direction][vehicle_id][station_id].get("freight_modules", {})
-        #
-        #                     # ==================== 核心修正 ====================
-        #                     # 在赋值前，确保该站点的字典路径存在
-        #                     # 如果车辆的调整计划中没有这个站点（无论是最后一个还是中间的），
-        #                     # 就为它创建一个空的字典档案。
-        #                     if station_id not in individual[direction]["module_adjustments"][vehicle_id]:
-        #                         individual[direction]["module_adjustments"][vehicle_id][station_id] = {}
-        #                     # =================================================
-        #
-        #                     mutated = False
-        #                     if p_range:
-        #                         new_delta_p = mutate_within_bounds(p_range)
-        #                         print('new_delta_p:', new_delta_p)
-        #                         individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_p"] = new_delta_p
-        #                         mutated = True
-        #
-        #                     if f_range:
-        #                         new_delta_f = mutate_within_bounds(f_range)
-        #                         print('new_delta_f:', new_delta_f)
-        #                         individual[direction]["module_adjustments"][vehicle_id][station_id]["delta_f"] = new_delta_f
-        #                         mutated = True
-        #
-        #                     if mutated:
-        #                         module_adjustment_changed = True
-        #                         mutated_direction = direction
-        #                         mutated_vehicle_id = vehicle_id
-        #                         mutated_station_id = station_id
-        #
         #                         print('模块调整变异', '变异车辆：', vehicle_id, '变异站点：', station_id)
 
         # === 在变异结束后统一判断和更新染色体 ===

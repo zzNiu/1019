@@ -111,8 +111,11 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
 
     # === 第二阶段：变异车辆的智能重仿真 ===
     print("\n📍 第二阶段：变异车辆智能重仿真")
-
+    print('vehicle_id:', vehicle_id)
     mutated_vehicle = all_vehicles[mutated_vehicle_index]
+    print('mutated_vehicle_index:', mutated_vehicle_index)
+    print('mutated_vehicle:', mutated_vehicle)
+    print(f"  ✅ 变异车辆{mutated_vehicle['global_vid']} 开始仿真")
 
     mutation_cost, updated_states = simulate_mutated_vehicle_intelligent(
         mutated_vehicle, updated_individual, parameters,
@@ -383,6 +386,7 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
                 print('delta_p:', delta_p, 'delta_f:', delta_f)
             else:
                 # 其他站点：基于分析结果重新生成最优调整
+                print('其他站点：基于分析结果重新生成最优调整')
                 # _, _, delta_p, delta_f, _ = module_system.generate_feasible_module_allocation(module_analysis)
                 adjusted_p_modules, adjusted_f_modules, delta_p, delta_f, module_analysis_ = module_system.generate_feasible_module_allocation(module_analysis)
 
@@ -395,7 +399,10 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
             adjusted_p_modules = current_p_modules + delta_p
             adjusted_f_modules = current_f_modules + delta_f
 
-            # 验证调整方案
+            print('adjusted_p_modules:', adjusted_p_modules)
+            print('adjusted_f_modules:', adjusted_f_modules)
+
+            print('验证调整方案')
             if not validate_module_adjustment(
                     onboard_passengers, onboard_freight, station_id,
                     adjusted_p_modules, adjusted_f_modules, parameters, station_module_stock
@@ -409,7 +416,7 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
                 })
                 return float('inf'), {"last_departure_time": arrival_time}
 
-            # 执行站点仿真
+            print('执行站点仿真')
             station_cost, station_state = execute_station_simulation_core(
                 station_id, arrival_time, onboard_passengers, onboard_freight,
                 adjusted_p_modules, adjusted_f_modules,
@@ -417,7 +424,7 @@ def simulate_mutated_vehicle_intelligent(vehicle, updated_individual, parameters
                 station_module_stock, delta_p, delta_f
             )
 
-            # 记录模块分析结果
+            print('记录模块分析结果')
             simulation_results["module_analysis_records"][f"{global_vid}_{station_id}"] = module_analysis
 
             record_type = "post_mutation" if station_id == mutated_station_id else "reoptimized"
@@ -539,6 +546,8 @@ def execute_station_simulation_core(station_id, arrival_time, onboard_passengers
     """
 
     print('station_id:', station_id)
+    print('变化后的p_modules:', p_modules)
+    print('变化后的f_modules:', f_modules)
 
     # 记录调整前状态
     onboard_p_before = sum(sum(p.values()) for p in onboard_passengers.values())
@@ -754,7 +763,7 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
     if onboard_p_after > adjusted_p_capacity or onboard_f_after > adjusted_f_capacity:
         print('onboard_p_after:', onboard_p_after, 'adjusted_p_capacity:' ,adjusted_p_capacity)
         print('onboard_f_after:', onboard_f_after, 'adjusted_f_capacity:' ,adjusted_f_capacity)
-        print('超出容量约束')
+        print('❌ 超出容量约束')
         return False
 
     # 检查模块总数约束
@@ -762,7 +771,7 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
     if total_modules > parameters.get("beta", 5):
     # if total_modules < parameters.get("alpha", 0) or total_modules > parameters.get("beta", 5):
         print('total_modules:', total_modules)
-        print('超出模块数量约束')
+        print('❌ 超出模块数量约束')
         return False
 
     # 检查站点库存约束

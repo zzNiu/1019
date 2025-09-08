@@ -151,6 +151,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 # print('mutant["adjustment_ranges"]:', mutant["adjustment_ranges"])
                 mutant_before = copy.deepcopy(mutant)
                 print(f"第{idx}个个体变异了")
+                print(f"第{idx}个个体原适应度{mutant.fitness.values}")
                 # 如果个体有调整范围信息，传递给变异操作
                 # if hasattr(mutant, 'adjustment_ranges'):
                 #     toolbox.mutate(mutant, parameters, global_demand_data)

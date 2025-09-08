@@ -173,7 +173,7 @@ class IntegratedBusModuleSystem:
         Returns:
             (下一站乘客模块数, 下一站货物模块数, 乘客模块变化量, 货物模块变化量)
         """
-
+        print('基于分析结果生成可行的模块分配方案')
         p_min = module_analysis['add']['passenger_modules_min']
         # print('p_min:', p_min)
         f_min = module_analysis['add']['freight_modules_min']
@@ -214,19 +214,27 @@ class IntegratedBusModuleSystem:
 
         while True:
 
-            # print("qian", p_n_k, f_n_k, delta_p, delta_f)
-
+            print("qian", p_n_k, f_n_k, delta_p, delta_f)
+            print('尝试')
             if weizhi(f_n_k, p_n_k, delta_f, delta_p):
                 break
             else:
+                print('p_min:', p_min, 'p_n_k:', p_n_k)
                 delta_p_min = p_min - p_n_k
                 # delta_p_min = p_n_k - p_min
+                print('total_max:', total_max, 'p_n_k:', p_n_k, 'f_min:', f_min)
                 delta_p_max = total_max - p_n_k - f_min
-                delta_p = random.randint(delta_p_min, delta_p_max)
 
+                delta_p = random.randint(delta_p_min, delta_p_max)
+                print('delta_p:', delta_p)
+
+                print('f_min:', f_min, 'f_n_k:', f_n_k)
                 delta_f_min = f_min - f_n_k
+                print('total_max:', total_max, 'f_n_k:', f_n_k, 'p_n_k:', p_n_k, 'delta_p:', delta_p)
                 delta_f_max = total_max - f_n_k - (p_n_k + delta_p)
+
                 delta_f = random.randint(delta_f_min, delta_f_max)
+                print('delta_f:', delta_f)
 
         # print("hou", p_n_k, f_n_k, delta_p, delta_f)
         #
@@ -488,7 +496,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
                 # print('delta_p:', delta_p, 'delta_f:', delta_f)
                 # print('station_module_stock_after:', station_module_stock_after)
                 if station_module_stock_after < 0 :
-                    print('逆天了 竟然小于0')
+                    print('-逆天了 竟然小于0')
 
                 # 6. 检查站点库存约束 (已注释掉)
                 # if (station_module_stock_after > parameters["max_modules_stock"] or
@@ -920,8 +928,8 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                     waiting_pass=waiting_p, waiting_cargo=waiting_f
                 )
 
-                # print('current_p_modules:', current_p_modules)
-                # print('current_f_modules:', current_f_modules)
+                print('current_p_modules:', current_p_modules)
+                print('current_f_modules:', current_f_modules)
 
                 # 【关键修改】从个体中读取预先确定的模块调整量
                 try:
@@ -940,12 +948,17 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
                 adjusted_p_modules = current_p_modules + delta_p
                 adjusted_f_modules = current_f_modules + delta_f
 
+                print('adjusted_p_modules:', adjusted_p_modules)
+                print('adjusted_f_modules:', adjusted_f_modules)
+
                 # 2. 更新调整后的容量 (与原函数一致)
                 adjusted_p_capacity = adjusted_p_modules * parameters["passenger_per_module"]
                 adjusted_f_capacity = adjusted_f_modules * parameters["freight_per_module"]
 
                 # 3. 验证调整后容量是否满足在车需求 (与原函数一致)
                 if onboard_p_after > adjusted_p_capacity or onboard_f_after > adjusted_f_capacity:
+                    print('onboard_p_after:', onboard_p_after, 'adjusted_p_capacity:', adjusted_p_capacity)
+                    print('onboard_f_after:', onboard_f_after, 'adjusted_f_capacity:', adjusted_f_capacity)
                     print(f"❌ 模块调整后容量超限: 车辆{vid} 站点{station_id}")
                     infeasible = True
                     return {}, float('inf'), 1e9, 1e9, failure_records, pd.DataFrame([]), [], []

@@ -24,7 +24,7 @@ class SmoothCostPlotter:
             logbook_data: 进化历史数据，可以是DEAP logbook或字典列表
         """
         self.logbook_data = logbook_data
-        self.generations, self.min_costs, self.avg_costs, self.max_costs = self._extract_data()
+        self.generations, self.min_costs, self.avg_costs = self._extract_data()
     
     def _extract_data(self):
         """从logbook中提取数据"""
@@ -35,17 +35,20 @@ class SmoothCostPlotter:
             generations = [record['gen'] for record in self.logbook_data]
             min_costs = [record['min'] for record in self.logbook_data if np.isfinite(record['min'])]
             avg_costs = [record['avg'] for record in self.logbook_data if np.isfinite(record['avg'])]
-            max_costs = [record['max'] for record in self.logbook_data if np.isfinite(record['max'])]
+            # max_costs = [record['max'] for record in self.logbook_data if np.isfinite(record['max'])]
         except (KeyError, TypeError):
             generations = list(range(len(self.logbook_data)))
             min_costs = [record['min'] for record in self.logbook_data if np.isfinite(record['min'])]
             avg_costs = [record['avg'] for record in self.logbook_data if np.isfinite(record['avg'])]
-            max_costs = [record['max'] for record in self.logbook_data if np.isfinite(record['max'])]
+            # max_costs = [record['max'] for record in self.logbook_data if np.isfinite(record['max'])]
         
         # 确保数据长度一致
-        valid_length = min(len(generations), len(min_costs), len(avg_costs), len(max_costs))
-        return (generations[:valid_length], min_costs[:valid_length], 
-                avg_costs[:valid_length], max_costs[:valid_length])
+        valid_length = min(len(generations), len(min_costs), len(avg_costs))
+        return (generations[:valid_length], min_costs[:valid_length],
+                avg_costs[:valid_length])
+        # valid_length = min(len(generations), len(min_costs), len(avg_costs), len(max_costs))
+        # return (generations[:valid_length], min_costs[:valid_length],
+        #         avg_costs[:valid_length], max_costs[:valid_length])
     
     def cubic_spline_smooth(self, x_data, y_data, num_points=None):
         """三次样条插值平滑"""
@@ -120,8 +123,8 @@ class SmoothCostPlotter:
                 markersize=4, label='最佳成本', alpha=0.8)
         ax1.plot(self.generations, self.avg_costs, 'g-', linewidth=2, marker='s', 
                 markersize=3, label='平均成本', alpha=0.8)
-        ax1.plot(self.generations, self.max_costs, 'r-', linewidth=2, marker='^', 
-                markersize=3, label='最差成本', alpha=0.8)
+        # ax1.plot(self.generations, self.max_costs, 'r-', linewidth=2, marker='^',
+        #         markersize=3, label='最差成本', alpha=0.8)
         ax1.set_title('原始数据', fontweight='bold')
         ax1.set_xlabel('进化代数')
         ax1.set_ylabel('成本')
@@ -132,12 +135,12 @@ class SmoothCostPlotter:
         ax2 = axes[0, 1]
         x_smooth, min_smooth = self.cubic_spline_smooth(self.generations, self.min_costs)
         _, avg_smooth = self.cubic_spline_smooth(self.generations, self.avg_costs)
-        _, max_smooth = self.cubic_spline_smooth(self.generations, self.max_costs)
+        # _, max_smooth = self.cubic_spline_smooth(self.generations, self.max_costs)
         
         ax2.scatter(self.generations, self.min_costs, c='blue', s=20, alpha=0.5, label='原始点')
         ax2.plot(x_smooth, min_smooth, 'b-', linewidth=3, label='最佳成本(样条)', alpha=0.9)
         ax2.plot(x_smooth, avg_smooth, 'g--', linewidth=2.5, label='平均成本(样条)', alpha=0.8)
-        ax2.plot(x_smooth, max_smooth, 'r:', linewidth=2, label='最差成本(样条)', alpha=0.7)
+        # ax2.plot(x_smooth, max_smooth, 'r:', linewidth=2, label='最差成本(样条)', alpha=0.7)
         ax2.set_title('三次样条插值', fontweight='bold')
         ax2.set_xlabel('进化代数')
         ax2.set_ylabel('成本')
@@ -148,12 +151,12 @@ class SmoothCostPlotter:
         ax3 = axes[0, 2]
         min_savgol = self.savgol_smooth(self.min_costs)
         avg_savgol = self.savgol_smooth(self.avg_costs)
-        max_savgol = self.savgol_smooth(self.max_costs)
+        # max_savgol = self.savgol_smooth(self.max_costs)
         
         ax3.plot(self.generations, self.min_costs, 'b-', linewidth=1, alpha=0.3, label='原始')
         ax3.plot(self.generations, min_savgol, 'b-', linewidth=3, label='最佳成本(S-G)', alpha=0.9)
         ax3.plot(self.generations, avg_savgol, 'g--', linewidth=2.5, label='平均成本(S-G)', alpha=0.8)
-        ax3.plot(self.generations, max_savgol, 'r:', linewidth=2, label='最差成本(S-G)', alpha=0.7)
+        # ax3.plot(self.generations, max_savgol, 'r:', linewidth=2, label='最差成本(S-G)', alpha=0.7)
         ax3.set_title('Savitzky-Golay滤波', fontweight='bold')
         ax3.set_xlabel('进化代数')
         ax3.set_ylabel('成本')
@@ -164,12 +167,12 @@ class SmoothCostPlotter:
         ax4 = axes[1, 0]
         min_gauss = self.gaussian_smooth(self.min_costs)
         avg_gauss = self.gaussian_smooth(self.avg_costs)
-        max_gauss = self.gaussian_smooth(self.max_costs)
+        # max_gauss = self.gaussian_smooth(self.max_costs)
         
         ax4.plot(self.generations, self.min_costs, 'b-', linewidth=1, alpha=0.3, label='原始')
         ax4.plot(self.generations, min_gauss, 'b-', linewidth=3, label='最佳成本(高斯)', alpha=0.9)
         ax4.plot(self.generations, avg_gauss, 'g--', linewidth=2.5, label='平均成本(高斯)', alpha=0.8)
-        ax4.plot(self.generations, max_gauss, 'r:', linewidth=2, label='最差成本(高斯)', alpha=0.7)
+        # ax4.plot(self.generations, max_gauss, 'r:', linewidth=2, label='最差成本(高斯)', alpha=0.7)
         ax4.set_title('高斯滤波', fontweight='bold')
         ax4.set_xlabel('进化代数')
         ax4.set_ylabel('成本')
@@ -180,12 +183,12 @@ class SmoothCostPlotter:
         ax5 = axes[1, 1]
         min_ma = self.moving_average_smooth(self.min_costs)
         avg_ma = self.moving_average_smooth(self.avg_costs)
-        max_ma = self.moving_average_smooth(self.max_costs)
+        # max_ma = self.moving_average_smooth(self.max_costs)
         
         ax5.plot(self.generations, self.min_costs, 'b-', linewidth=1, alpha=0.3, label='原始')
         ax5.plot(self.generations, min_ma, 'b-', linewidth=3, label='最佳成本(移动平均)', alpha=0.9)
         ax5.plot(self.generations, avg_ma, 'g--', linewidth=2.5, label='平均成本(移动平均)', alpha=0.8)
-        ax5.plot(self.generations, max_ma, 'r:', linewidth=2, label='最差成本(移动平均)', alpha=0.7)
+        # ax5.plot(self.generations, max_ma, 'r:', linewidth=2, label='最差成本(移动平均)', alpha=0.7)
         ax5.set_title('移动平均', fontweight='bold')
         ax5.set_xlabel('进化代数')
         ax5.set_ylabel('成本')
@@ -232,42 +235,42 @@ class SmoothCostPlotter:
         if method == 'spline':
             x_smooth, min_smooth = self.cubic_spline_smooth(self.generations, self.min_costs)
             _, avg_smooth = self.cubic_spline_smooth(self.generations, self.avg_costs)
-            _, max_smooth = self.cubic_spline_smooth(self.generations, self.max_costs)
+            # _, max_smooth = self.cubic_spline_smooth(self.generations, self.max_costs)
             title_suffix = '三次样条插值平滑'
         elif method == 'savgol':
             x_smooth = self.generations
             min_smooth = self.savgol_smooth(self.min_costs)
             avg_smooth = self.savgol_smooth(self.avg_costs)
-            max_smooth = self.savgol_smooth(self.max_costs)
+            # max_smooth = self.savgol_smooth(self.max_costs)
             title_suffix = 'Savitzky-Golay滤波平滑'
         elif method == 'gaussian':
             x_smooth = self.generations
             min_smooth = self.gaussian_smooth(self.min_costs)
             avg_smooth = self.gaussian_smooth(self.avg_costs)
-            max_smooth = self.gaussian_smooth(self.max_costs)
+            # max_smooth = self.gaussian_smooth(self.max_costs)
             title_suffix = '高斯滤波平滑'
         elif method == 'moving_avg':
             x_smooth = self.generations
             min_smooth = self.moving_average_smooth(self.min_costs)
             avg_smooth = self.moving_average_smooth(self.avg_costs)
-            max_smooth = self.moving_average_smooth(self.max_costs)
+            # max_smooth = self.moving_average_smooth(self.max_costs)
             title_suffix = '移动平均平滑'
         else:
             x_smooth = self.generations
             min_smooth = self.min_costs
             avg_smooth = self.avg_costs
-            max_smooth = self.max_costs
+            # max_smooth = self.max_costs
             title_suffix = '原始数据'
         
         # 绘制原始数据点（淡色）
         plt.scatter(self.generations, self.min_costs, c='blue', s=20, alpha=0.3, label='最佳成本(原始)')
         plt.scatter(self.generations, self.avg_costs, c='green', s=15, alpha=0.3, label='平均成本(原始)')
-        plt.scatter(self.generations, self.max_costs, c='red', s=15, alpha=0.3, label='最差成本(原始)')
+        # plt.scatter(self.generations, self.max_costs, c='red', s=15, alpha=0.3, label='最差成本(原始)')
         
         # 绘制平滑曲线
         plt.plot(x_smooth, min_smooth, 'b-', linewidth=4, label='最佳成本(平滑)', alpha=0.9)
         plt.plot(x_smooth, avg_smooth, 'g--', linewidth=3, label='平均成本(平滑)', alpha=0.8)
-        plt.plot(x_smooth, max_smooth, 'r:', linewidth=2, label='最差成本(平滑)', alpha=0.7)
+        # plt.plot(x_smooth, max_smooth, 'r:', linewidth=2, label='最差成本(平滑)', alpha=0.7)
         
         # 添加填充区域
         if len(x_smooth) == len(min_smooth):
