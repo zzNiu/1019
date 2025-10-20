@@ -69,11 +69,12 @@ def setup_deap_toolbox(parameters, global_demand_data):
             # ==================== 修改逻辑：开始 ====================
             # 不再写入 cost_cache，而是直接将成本数据作为个体的一个属性
             print('成本写入染色体')
-            individual.cost_components = {
-                "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
-                "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
-                "mav_transport_cost": float(cost_components["mav_transport_cost"]),
-            }
+            # individual.cost_components = {
+            #     "passenger_waiting_cost": float(cost_components["passenger_waiting_cost"]),
+            #     "freight_waiting_cost": float(cost_components["freight_waiting_cost"]),
+            #     "mav_transport_cost": float(cost_components["mav_transport_cost"]),
+            # }
+            individual.cost_components = cost_components
             print('individual.cost_components:', individual.cost_components)
             # ==================== 修改逻辑：结束 ====================
 
@@ -314,6 +315,9 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         p_min = analysis_data['add']['passenger_modules_min']
                         f_min = analysis_data['add']['freight_modules_min']
 
+                        # 【新增】从分析数据中提取站点库存，以供 weizhi 函数调用
+                        store_modules = analysis_data['station_info']['store_modules']
+
                         # 3. 重新计算 p 的范围并生成新值
                         delta_p_min = p_min - p_n_k
                         delta_p_max = total_max - p_n_k - f_min
@@ -331,7 +335,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                         # 插入：检验新生成的方案合理性
                         from simulation_generate import weizhi
                         while True:
-                            if weizhi(f_n_k, p_n_k, new_delta_f, new_delta_p):
+                            if weizhi(f_n_k, p_n_k, new_delta_f, new_delta_p, store_modules):
                                 print('不满足')
                                 break
                             else:
@@ -342,7 +346,7 @@ def setup_deap_toolbox(parameters, global_demand_data):
                                 delta_f_min = f_min - f_n_k
                                 new_delta_f_max = total_max - f_n_k - (p_n_k + new_delta_p)
                                 new_delta_f = random.randint(delta_f_min, new_delta_f_max)
-
+                        print('f_n_k:', f_n_k, 'p_n_k:', p_n_k, 'new_delta_f:', new_delta_f, 'new_delta_p:', new_delta_p)
                         # 6. 更新个体染色体
                         # 确保路径存在
                         if vehicle_id not in individual[direction]["module_adjustments"]:

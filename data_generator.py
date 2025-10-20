@@ -18,7 +18,7 @@ def generate_passenger_demand(up=True):
                 'origin': (origin := random.randint(0, UP_STATIONS - 2)),
                 'destination': random.randint(origin + 1, UP_STATIONS - 1),
                 'arrival_time': random.randint(0, NUM_TIMESTAMPS - 1),
-                'num_passengers': random.randint(1, 4)
+                'num_passengers': random.randint(1, 1)
             } for _ in range(NUM_PASSENGERS)
         ]
     else:
@@ -27,7 +27,7 @@ def generate_passenger_demand(up=True):
                 'origin': (origin := random.randint(UP_STATIONS, TOTAL_STATIONS - 2)),
                 'destination': random.randint(origin + 1, TOTAL_STATIONS - 1),
                 'arrival_time': random.randint(0, NUM_TIMESTAMPS - 1),
-                'num_passengers': random.randint(1, 4)
+                'num_passengers': random.randint(1, 1)
             } for _ in range(NUM_PASSENGERS)
         ]
 
@@ -39,7 +39,7 @@ def generate_freight_demand(up=True):
                 'origin': (origin := random.randint(0, UP_STATIONS - 2)),
                 'destination': random.randint(origin + 1, UP_STATIONS - 1),
                 'arrival_time': random.randint(0, NUM_TIMESTAMPS - 1),
-                'volume': random.randint(1, 3)
+                'volume': random.randint(1, 1)
             } for _ in range(NUM_FREIGHTS)
         ]
     else:
@@ -48,7 +48,7 @@ def generate_freight_demand(up=True):
                 'origin': (origin := random.randint(UP_STATIONS, TOTAL_STATIONS - 2)),
                 'destination': random.randint(origin + 1, TOTAL_STATIONS - 1),
                 'arrival_time': random.randint(0, NUM_TIMESTAMPS - 1),
-                'volume': random.randint(1, 3)
+                'volume': random.randint(1, 1)
             } for _ in range(NUM_FREIGHTS)
         ]
 

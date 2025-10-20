@@ -1,23 +1,73 @@
 # 配置文件 - 只包含参数定义
 
 # 全局配置参数
+# 站点间行驶时间
 t_s_s1 = 5
-MAX_MODULES = 5
-MAX_MODULES_STOCK = 4
-MIN_MODULES_STOCK = 0
-NUM_PASSENGERS = 60
-NUM_FREIGHTS = 40
-NUM_VEHICLES = 6
-NUM_POPSIZE = 10
-NUM_TIMESTAMPS = 50
-MAX_GENERATIONS = 30
+
+# 上行站点数量
 UP_STATIONS = 10
 DOWN_STATIONS = 10
 TOTAL_STATIONS = UP_STATIONS + DOWN_STATIONS
 
-num_HallOfFame = 5
+# 公交班次数量
+NUM_VEHICLES = 6
 
-# 默认需求数据文件路径（已移至demand_loader.py）
+# 最大模块数量
+MAX_MODULES = 5
+
+# 最小车头时距
+MINI_HEADWAY=2
+# 最大车头时距
+MAX_HEADWAY=20
+
+# 站点存储容量上限
+MAX_MODULES_STOCK = 4
+MIN_MODULES_STOCK = 0
+
+
+# 乘客需求数量
+NUM_PASSENGERS = 60
+# 货物需求数量
+NUM_FREIGHTS = 40
+
+
+# 乘客等待成本系数
+CP = 0.11
+# 货物等待成本系数
+CWf = 0.11
+# 固定运输成本
+C_F = 2.049
+# 可变运输成本系数
+C_V = 5.56
+# 成本函数指数
+alpha = 0.5
+
+beta = 5
+
+# 每个客运模块的容量
+kappa_P = 15
+
+# 每个货运模块的容量
+kappa_F = 15
+
+# 惩罚成本系数
+C_unserved=15
+
+# 时间长度，用于生成需求数据
+NUM_TIMESTAMPS = 50
+
+
+# 遗传算法相关参数
+# 种群规模
+NUM_POPSIZE = 10
+# 迭代代数
+MAX_GENERATIONS = 20
+# 名人堂数量
+num_HallOfFame = 5
+# 交叉概率
+CROSSOVER_POSSIBILITY = 0.7
+# 变异概率
+MUTATED_POSSIBILITY = 0.6
 
 parameters = {
 
@@ -33,19 +83,16 @@ parameters = {
     'max_modules_stock': MAX_MODULES_STOCK,
     'min_modules_stock': MIN_MODULES_STOCK,
 
-    'module_cost': 1.0,
+    'passenger_waiting_cost': CP,
+    'freight_waiting_cost': CWf,
 
-    'passenger_waiting_cost': 10.0,
-    'freight_waiting_cost': 5.0,
-
-    'min_headway': 2,
-    'max_headway': 20,
+    'min_headway': MINI_HEADWAY,
+    'max_headway': MAX_HEADWAY,
 
     'passenger_per_module': 15,
     'freight_per_module': 10,
 
     't_s_s1': t_s_s1,
-    'travel_time': t_s_s1,
 
     'num_timestamps': NUM_TIMESTAMPS,
 
@@ -55,16 +102,14 @@ parameters = {
     "num_passenger_requests": NUM_PASSENGERS,  # 示例值
     "num_freight_requests": NUM_FREIGHTS,  # 示例值
 
-    'cxpb': 0.7,  # 交叉概率
-    'mutpb': 0.6,  # 变异概率
+    "penalty_cost_per_unit": C_unserved,
 
-    'C_F': 2.049,
-    'C_V': 5.56,
-    'alpha': 0.5,
+    'cxpb': CROSSOVER_POSSIBILITY,  # 交叉概率
+    'mutpb': MUTATED_POSSIBILITY,  # 变异概率
 
-    'beta': 5
+    'C_F': C_F,
+    'C_V': C_V,
+    'alpha': alpha,
+
+    'beta': beta
 }
-
-
-# 需求数据加载功能已移至 demand_loader.py
-# 使用 from demand_loader import load_global_demand_data, load_latest_demand_data

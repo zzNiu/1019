@@ -183,7 +183,7 @@ def simulate_after_module_mutation_v2(individual, parameters, global_demand_data
     print("cost_components：", simulation_results["cost_components"])
 
     print(f"\n ✅ 智能重仿真及最终评估完成")
-    print(f"   💰 变异前成本: {pre_mutation_cost:.2f}")
+    # print(f"   💰 变异前成本: {pre_mutation_cost:.2f}")
     print(f"   💰 变异后精确成本: {final_total_cost:.2f}")
 
     # 返回更新后的个体和包含了详细成本的仿真结果
@@ -777,8 +777,8 @@ def validate_module_adjustment(onboard_passengers, onboard_freight, station_id,
     # 检查站点库存约束
     station_stock = station_module_stock[station_id]["modules"]
     if station_stock < parameters.get("min_modules_stock", 0) or station_stock > parameters.get("max_modules_stock", float('inf')):
-        print('暂时不管存储数量限制的问题')
-        # return False
+        print('❌ 模块存储数量超限')
+        return False
 
     return True
 

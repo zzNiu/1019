@@ -2,7 +2,7 @@ from deepdiff import DeepDiff
 import json
 
 import copy
-
+import pandas as pd
 import math
 import random
 import numpy as np
@@ -10,9 +10,6 @@ from deap import tools
 
 import os  # <--- 新增导入
 import matplotlib # <--- 新增导入
-
-# === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
-from plot_cost_stack import plot_cost_stack_from_history
 
 # === 新增：读评估阶段写入的成本缓存 & 绘图函数 ===
 from plot_cost_stack import plot_cost_stack_from_history
@@ -43,7 +40,15 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     # ===== 在 customized_genetic_algorithm.py 中（遗传主循环外侧）=====
     # === 新增：成本历史（按每代最优个体记录） ===
-    cost_history = {"passenger": [], "freight": [], "mav": []}
+    # cost_history = {"passenger": [], "freight": [], "mav": []}
+    cost_history = {
+        "mav_transport": [],
+        "passenger_waiting": [],
+        "freight_waiting": [],
+        "unserved_penalty_cost": [],
+        "unserved_passenger": [],
+        "unserved_freight": [],
+    }
 
     # === 新增：记录当前种群最优个体的三项成本 ===
     def record_best_cost(pop):
@@ -74,9 +79,12 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         # ==========================================================
 
         # 使用从个体身上获取到的成本数据更新历史记录
-        cost_history["passenger"].append(float(cc.get("passenger_waiting_cost", 0.0)))
-        cost_history["freight"].append(float(cc.get("freight_waiting_cost", 0.0)))
-        cost_history["mav"].append(float(cc.get("mav_transport_cost", 0.0)))
+        cost_history["mav_transport"].append(float(cc.get("mav_transport_cost", 0.0)))
+        cost_history["passenger_waiting"].append(float(cc.get("passenger_waiting_cost", 0.0)))
+        cost_history["freight_waiting"].append(float(cc.get("freight_waiting_cost", 0.0)))
+        cost_history["unserved_penalty_cost"].append(float(cc.get("unserved_penalty_cost", 0.0)))
+        cost_history["unserved_passenger"].append(float(cc.get("unserved_passengers", 0.0)))
+        cost_history["unserved_freight"].append(float(cc.get("unserved_freights", 0.0)))
 
 
     logbook = tools.Logbook()
@@ -167,7 +175,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 if not diff__:
                     print("✅ 个体变异未更新")
                 else:
-                    print("⚠️ 个体变异已经更新")
+                    print("⚠️ 个体变异已经更新 确保真的发生变异")
                     # print(json.dumps(diff__, indent=2, ensure_ascii=False))
                     # print(diff__)  # 可以正常打印
                     # print(json.dumps(diff__.to_dict(), indent=2, ensure_ascii=False))
@@ -267,13 +275,6 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         check_station_info_existence(offspring, gen)
         # ==========================================================
 
-
-            # ==================== 修改/新增逻辑：结束 ====================
-
-            # else:
-            #
-            #     print(f"个体 {i + 1} 直接继承母代")
-
         # 更新名人堂
         if halloffame is not None:
             halloffame.update(offspring)
@@ -311,6 +312,17 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
         if verbose:
             print(logbook.stream)
+            # 增加打印成本构成的逻辑
+            last_costs = {k: v[-1] for k, v in cost_history.items() if v}
+            if last_costs:
+                print(f"  \n--- 第 {gen} 代最优成本构成 ---")
+                print(f"  MAV运输成本: {last_costs.get('mav_transport', 0.0):.4f}")
+                print(f"  乘客等待成本: {last_costs.get('passenger_waiting', 0.0):.4f}")
+                print(f"  货物等待成本: {last_costs.get('freight_waiting', 0.0):.4f}")
+                print(f"  未服务需求惩罚: {last_costs.get('unserved_penalty_cost', 0.0):.4f}")
+                print(f"  未服务乘客惩罚: {last_costs.get('unserved_passenger', 0.0):.4f}")
+                print(f"  未服务货物惩罚: {last_costs.get('unserved_freight', 0.0):.4f}")
+                print("-" * 30)
 
     print('进化完成')
 
@@ -390,6 +402,19 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
     # ==================== 新增逻辑：开始 ====================
     # 在遗传算法运行结束后，直接绘制成本构成堆叠图
     if results_dir:
+
+        # --- 2. 新增：保存成本历史到 Excel ---
+        print("\n--- 正在保存成本进化历史到 Excel 文件 ---")
+        try:
+            df_cost_history = pd.DataFrame(cost_history)
+            # 增加 'generation' 列，方便查看
+            df_cost_history.insert(0, 'generation', range(len(df_cost_history)))
+            excel_save_path = os.path.join(results_dir, "cost_evolution_history.xlsx")
+            df_cost_history.to_excel(excel_save_path, index=False)
+            print(f"✅ 成本进化历史已成功保存到: {excel_save_path}")
+        except Exception as e:
+            print(f"❌ 保存成本历史到 Excel 时发生错误: {e}")
+
         print("\n--- 正在绘制成本构成进化堆叠图 ---")
         try:
             # 确保在绘图前设置中文字体，以防乱码
