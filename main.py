@@ -83,7 +83,7 @@ def main():
                     for t in a_matrix_p_down[s][s_dest]:
                         all_passengers += a_matrix_p_down[s][s_dest][t]
 
-            all_passengers_dwon = all_passengers - all_passengers_up
+            all_passengers_down = all_passengers - all_passengers_up
 
             for s in a_matrix_f_down:
                 for s_dest in a_matrix_f_down[s]:
@@ -94,7 +94,7 @@ def main():
 
             print(f"✅ 仿真之前 ")
             print(f"   up总乘客: {all_passengers_up}, up总货物: {all_freights_up}")
-            print(f"   down总乘客: {all_passengers_dwon}, down总货物: {all_freights_down}")
+            print(f"   down总乘客: {all_passengers_down}, down总货物: {all_freights_down}")
             print(f"   系统总乘客: {all_passengers}, 系统总货物: {all_freights}")
 
         except FileNotFoundError:

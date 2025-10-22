@@ -39,7 +39,8 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
         "unserved_penalty_cost": [],
         "unserved_passenger": [],
         "unserved_freight": [],
-        "fitness": []
+        "fitness": [],
+        "waiting_time_cost": []  # <--- 在这里添加新行
     }
 
     # 记录当前种群所有个体的信息和计算平均值
@@ -53,7 +54,8 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
             "unserved_penalty_cost": [],
             "unserved_passenger": [],
             "unserved_freight": [],
-            "fitness": []
+            "fitness": [],
+            "waiting_time_cost": []  # <--- 在这里添加新行
         }
 
         # 遍历种群中的每个个体
@@ -67,25 +69,65 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
             }
 
             # 获取成本组件
+            # (请替换为这个新代码块)
             cc = getattr(ind, 'cost_components', None)
             if cc and isinstance(cc, dict):
-                for key in cost_history.keys():
-                    cost_key = {
-                        "mav_transport": "mav_transport_cost",
-                        "passenger_waiting": "passenger_waiting_cost",
-                        "freight_waiting": "freight_waiting_cost",
-                        "unserved_penalty_cost": "unserved_penalty_cost",
-                        "unserved_passenger": "unserved_passengers",
-                        "unserved_freight": "unserved_freights"
-                    }[key]
-                    ind_data["cost_components"][key] = float(cc.get(cost_key, 0.0))
+                # ==================== 修改排序逻辑：开始 ====================
+                # 1. 先从 cc (cost_components) 中获取所有原始值
+                mav_cost = float(cc.get("mav_transport_cost", 0.0))
+                p_wait_cost = float(cc.get("passenger_waiting_cost", 0.0))
+                f_wait_cost = float(cc.get("freight_waiting_cost", 0.0))
+                unserved_p_cost = float(cc.get("unserved_penalty_cost", 0.0))
+                unserved_p_num = float(cc.get("unserved_passengers", 0.0))
+                unserved_f_num = float(cc.get("unserved_freights", 0.0))
+
+                # 2. 计算派生值 (waiting_time_cost)
+                total_wait_cost = p_wait_cost + f_wait_cost
+
+                # 3. 按照您要求的顺序，将键值对插入 ind_data["cost_components"] 字典
+                #    (Python 3.7+ 字典会保持此插入顺序，Pandas会遵循此顺序)
+                ind_data["cost_components"]["mav_transport"] = mav_cost
+                ind_data["cost_components"]["waiting_time_cost"] = total_wait_cost
+                ind_data["cost_components"]["passenger_waiting"] = p_wait_cost
+                ind_data["cost_components"]["freight_waiting"] = f_wait_cost
+                ind_data["cost_components"]["unserved_penalty_cost"] = unserved_p_cost
+                ind_data["cost_components"]["unserved_passenger"] = unserved_p_num
+                ind_data["cost_components"]["unserved_freight"] = unserved_f_num
+                # ==================== 修改排序逻辑：结束 ====================
+
             current_gen_data.append(ind_data)
+            # cc = getattr(ind, 'cost_components', None)
+            # if cc and isinstance(cc, dict):
+            #     for key in cost_history.keys():
+            #         cost_key = {
+            #             "mav_transport": "mav_transport_cost",
+            #             "passenger_waiting": "passenger_waiting_cost",
+            #             "freight_waiting": "freight_waiting_cost",
+            #             "unserved_penalty_cost": "unserved_penalty_cost",
+            #             "unserved_passenger": "unserved_passengers",
+            #             "unserved_freight": "unserved_freights"
+            #         }[key]
+            #         ind_data["cost_components"][key] = float(cc.get(cost_key, 0.0))
+            #
+            #     # ==================== 新增逻辑：开始 ====================
+            #     # 计算并添加总等待成本
+            #     p_wait = ind_data["cost_components"].get("passenger_waiting", 0.0)
+            #     f_wait = ind_data["cost_components"].get("freight_waiting", 0.0)
+            #     ind_data["cost_components"]["waiting_time_cost"] = p_wait + f_wait
+            #     # ==================== 新增逻辑：结束 ====================
+            #
+            # current_gen_data.append(ind_data)
 
             # 收集有效数据用于计算平均值
             if ind_data["fitness"] is not None:
                 valid_costs["fitness"].append(ind_data["fitness"])
                 for key in cost_history.keys():
                     valid_costs[key].append(ind_data["cost_components"].get(key, 0.0))
+
+                # ==================== 新增逻辑：开始 ====================
+                # 收集 waiting_time_cost 用于计算平均值
+                valid_costs["waiting_time_cost"].append(ind_data["cost_components"].get("waiting_time_cost", 0.0))
+                # ==================== 新增逻辑：结束 ====================
 
         # 计算并记录平均值
         for key in generation_averages.keys():
@@ -356,6 +398,30 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
             print(f"✅ 成本进化历史已成功保存到: {excel_save_path}")
         except Exception as e:
             print(f"❌ 保存成本历史到 Excel 时发生错误: {e}")
+
+        # ==================== 新增代码块：开始 ====================
+        # 新增：绘制平均成本构成堆叠图
+        print("\n--- 正在绘制平均成本构成进化堆叠图 ---")
+        try:
+            # 确保字体设置（如果前面失败，这里可以再次尝试）
+            matplotlib.rcParams['font.family'] = 'SimHei'
+            matplotlib.rcParams['axes.unicode_minus'] = False
+
+            # 1. 定义一个新的保存路径
+            avg_save_path = os.path.join(results_dir, "平均成本构成堆叠图.png")
+
+            # 2. 关键：使用 generation_averages 字典作为数据源
+            # 3. 提供一个新的标题
+            plot_cost_stack_from_history(
+                generation_averages,
+                title="平均成本构成进化堆叠图",
+                save_path=avg_save_path
+            )
+
+            print(f"✅ 平均成本构成堆叠图已成功保存到: {avg_save_path}")
+        except Exception as e:
+            print(f"❌ 绘制平均成本构成堆叠图时发生错误: {e}")
+        # ==================== 新增代码块：结束 ====================
 
         # 新增：保存每代平均值到Excel
         try:

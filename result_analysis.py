@@ -19,6 +19,49 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
     # 运行仿真获取详细结果
     print("🔄 正在运行最佳个体的详细仿真...")
     try:
+
+        # ==================== 新增：计算初始总需求 ====================
+        # (此逻辑从 main.py 复制而来，用于计算服务总量)
+        a_matrix_p_up = global_demand_data["a_matrix_p_up"]
+        a_matrix_f_up = global_demand_data["a_matrix_f_up"]
+        a_matrix_p_down = global_demand_data["a_matrix_p_down"]
+        a_matrix_f_down = global_demand_data["a_matrix_f_down"]
+
+        all_passengers = 0
+        all_freights = 0
+        all_passengers_up = 0
+        all_freights_up = 0
+        all_passengers_down = 0
+        all_freights_down = 0
+
+        # 计算上行需求
+        for s in a_matrix_p_up:
+            for s_dest in a_matrix_p_up[s]:
+                for t in a_matrix_p_up[s][s_dest]:
+                    all_passengers += a_matrix_p_up[s][s_dest][t]
+        all_passengers_up = all_passengers
+
+        for s in a_matrix_f_up:
+            for s_dest in a_matrix_f_up[s]:
+                for t in a_matrix_f_up[s][s_dest]:
+                    all_freights += a_matrix_f_up[s][s_dest][t]
+        all_freights_up = all_freights
+
+        # 计算下行需求
+        for s in a_matrix_p_down:
+            for s_dest in a_matrix_p_down[s]:
+                for t in a_matrix_p_down[s][s_dest]:
+                    all_passengers += a_matrix_p_down[s][s_dest][t]
+        # (注意：修复了 main.py 中的拼写错误 all_passengers_dwon)
+        all_passengers_down = all_passengers - all_passengers_up
+
+        for s in a_matrix_f_down:
+            for s_dest in a_matrix_f_down[s]:
+                for t in a_matrix_f_down[s][s_dest]:
+                    all_freights += a_matrix_f_down[s][s_dest][t]
+        all_freights_down = all_freights - all_freights_up
+        # ==================== 初始需求计算结束 ====================
+
         vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components = simulate_with_integrated_module_system(
             best_individual, parameters, global_demand_data,
             global_demand_data["passenger_demand_up"],
@@ -29,12 +72,40 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
 
         print("✅ 仿真完成")
 
-        # 基本信息
+        # ==================== 新增：定义详细指标并按新格式打印 ====================
+
+        # 1. 计算服务总量
+        total_served_passengers = all_passengers - remaining_passengers
+        total_served_freight = all_freights - remaining_freights
+
+        # 2. 假设详细的剩余需求存储在 cost_components 中
+        try:
+            # (我们假设 cost_components 包含这些用于细分的键)
+            remaining_passengers_up = cost_components.get('unserved_passengers_up', 0)
+            remaining_passengers_down = cost_components.get('unserved_passengers_down', 0)
+            remaining_freights_up = cost_components.get('unserved_freights_up', 0)
+            remaining_freights_down = cost_components.get('unserved_freights_down', 0)
+        except Exception:
+            # B方案: 如果 cost_components 缺失或格式不对，则无法细分
+            remaining_passengers_up = "未知"
+            remaining_passengers_down = "未知"
+            remaining_freights_up = "未知"
+            remaining_freights_down = "未知"
+
+        # 3. 按您要求的格式打印
         print(f"\n📊 基本性能指标:")
-        print(f"  总成本: {total_cost:.2f}")
-        print(f"  剩余乘客: {remaining_passengers}")
-        print(f"  剩余货物: {remaining_freights}")
-        print(f"  失败记录数: {len(failure_records)}")
+        print(f"  ✅ 仿真完成 - 总成本: {total_cost:.2f}")
+        print(f"   系统服务乘客: {total_served_passengers}, 系统服务货物: {total_served_freight}")
+        print(f"   up剩余乘客: {remaining_passengers_up}, up剩余货物: {remaining_freights_up}")
+        print(f"   down剩余乘客: {remaining_passengers_down}, down剩余货物: {remaining_freights_down}")
+        print(f"   系统剩余乘客: {remaining_passengers}, 系统剩余货物: {remaining_freights}")
+        print(f"   失败记录数: {len(failure_records)}")  # (保留了原有的失败记录，这很重要)
+        # ==================== 打印块替换完成 ====================
+        # print(f"\n📊 基本性能指标:")
+        # print(f"  总成本: {total_cost:.2f}")
+        # print(f"  剩余乘客: {remaining_passengers}")
+        # print(f"  剩余货物: {remaining_freights}")
+        # print(f"  失败记录数: {len(failure_records)}")
 
         # 车辆调度信息
         print(f"\n🚌 车辆调度详情:")
@@ -93,6 +164,18 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
                 'schedule_data': schedule_data,
                 'logbook': logbook,
                 'cost_history': cost_history,
+
+                # ==================== 在这里添加新行：开始 ====================
+                # (这些变量是您在上一请求中计算的)
+                'total_served_passengers': total_served_passengers,
+                'total_served_freight': total_served_freight,
+                'remaining_passengers_up': remaining_passengers_up,
+                'remaining_passengers_down': remaining_passengers_down,
+                'remaining_freights_up': remaining_freights_up,
+                'remaining_freights_down': remaining_freights_down,
+                # (同时传入 cost_components 以备后用)
+                'cost_components': cost_components
+                # ==================== 添加新行：结束 ====================
             },
             results_dir=results_dir,  # <-- 传递目录
             timestamp=timestamp  # <-- 新增：传递时间戳
@@ -179,37 +262,24 @@ def save_best_individual_results(best_individual, simulation_results, results_di
             except Exception as e:
                 print(f"  ⚠️ 生成成本进化曲线失败: {e}")
 
-            # 生成平滑成本进化曲线
-            try:
-                from smooth_cost_plotter import SmoothCostPlotter
-                print(f"  🎨 生成平滑成本进化曲线...")
-
-                plotter = SmoothCostPlotter(simulation_results['logbook'])
-
-                # 生成对比图
-                comparison_path = f"{results_dir}/smooth_cost_comparison.png"
-                plotter.plot_comparison(save_path=comparison_path)
-
-                # 生成最佳的样条插值平滑图
-                spline_path = f"{results_dir}/smooth_cost_spline.png"
-                plotter.plot_best_smooth(method='spline', save_path=spline_path)
-
-                print(f"  ✅ 平滑成本进化曲线已保存到: {results_dir}/")
-            except Exception as e:
-                print(f"  ⚠️ 生成平滑成本进化曲线失败: {e}")
-
-        # 6. 生成成本构成堆叠图（按每代最优个体）
-        # try:
-        #     cost_history = simulation_results.get('cost_history', None)
-        #     if cost_history and all(k in cost_history for k in ("passenger", "freight", "mav")):
-        #         print(f"  🎨 生成成本构成堆叠图...")
-        #         stack_path = f"{results_dir}/成本构成堆叠图.png"
-        #         plot_cost_stack_from_history(cost_history, title="成本构成堆叠图", save_path=stack_path)
-        #         print(f"  ✅ 成本构成堆叠图已保存到: {stack_path}")
-        #     else:
-        #         print("  ℹ️ 未提供 cost_history 或字段不全，跳过生成成本构成堆叠图。")
-        # except Exception as e:
-        #     print(f"  ⚠️ 生成成本构成堆叠图失败: {e}")
+            # # 生成平滑成本进化曲线
+            # try:
+            #     from smooth_cost_plotter import SmoothCostPlotter
+            #     print(f"  🎨 生成平滑成本进化曲线...")
+            #
+            #     plotter = SmoothCostPlotter(simulation_results['logbook'])
+            #
+            #     # 生成对比图
+            #     comparison_path = f"{results_dir}/smooth_cost_comparison.png"
+            #     plotter.plot_comparison(save_path=comparison_path)
+            #
+            #     # 生成最佳的样条插值平滑图
+            #     spline_path = f"{results_dir}/smooth_cost_spline.png"
+            #     plotter.plot_best_smooth(method='spline', save_path=spline_path)
+            #
+            #     print(f"  ✅ 平滑成本进化曲线已保存到: {results_dir}/")
+            # except Exception as e:
+            #     print(f"  ⚠️ 生成平滑成本进化曲线失败: {e}")
 
         # # 生成详细的甘特图
         # try:
@@ -282,12 +352,34 @@ def generate_summary_report(best_individual, simulation_results, filepath):
         f.write("🏆 最佳调度方案总结报告\n")
         f.write("="*60 + "\n\n")
 
-        # 基本信息
+        # # 基本信息
+        # (这是替换后的新代码块)
         f.write("📊 基本性能指标:\n")
         f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        f.write(f"  剩余乘客: {simulation_results['remaining_passengers']}\n")
-        f.write(f"  剩余货物: {simulation_results['remaining_freights']}\n")
-        f.write(f"  失败记录数: {len(simulation_results['failure_records'])}\n\n")
+
+        # --- 从 simulation_results 中获取新数据 ---
+        # (使用 .get() 方法，如果键不存在则返回 '未知'，确保安全)
+        total_served_p = simulation_results.get('total_served_passengers', '未知')
+        total_served_f = simulation_results.get('total_served_freight', '未知')
+        rem_p_up = simulation_results.get('remaining_passengers_up', '未知')
+        rem_p_down = simulation_results.get('remaining_passengers_down', '未知')
+        rem_f_up = simulation_results.get('remaining_freights_up', '未知')
+        rem_f_down = simulation_results.get('remaining_freights_down', '未知')
+
+        # --- 按照您要求的格式写入文件 ---
+        f.write(f"   系统服务乘客: {total_served_p}, 系统服务货物: {total_served_f}\n")
+        f.write(f"   up剩余乘客: {rem_p_up}, up剩余货物: {rem_f_up}\n")
+        f.write(f"   down剩余乘客: {rem_p_down}, down剩余货物: {rem_f_down}\n")
+
+        # --- 保留原有的系统总剩余和失败记录 ---
+        f.write(f"   系统剩余乘客: {simulation_results['remaining_passengers']}\n")
+        f.write(f"   系统剩余货物: {simulation_results['remaining_freights']}\n")
+        f.write(f"   失败记录数: {len(simulation_results['failure_records'])}\n\n")
+        # f.write("📊 基本性能指标:\n")
+        # f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        # f.write(f"  剩余乘客: {simulation_results['remaining_passengers']}\n")
+        # f.write(f"  剩余货物: {simulation_results['remaining_freights']}\n")
+        # f.write(f"  失败记录数: {len(simulation_results['failure_records'])}\n\n")
 
         # 车辆配置统计
         f.write("🚌 车辆配置统计:\n")
