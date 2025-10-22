@@ -111,9 +111,9 @@ def save_best_individual_results(best_individual, simulation_results, results_di
     """保存最佳个体的详细结果"""
     print(f"\n💾 保存最佳个体结果...")
 
-    # # 创建结果目录
-    # results_dir = f"best_solution_{timestamp}"
-    # os.makedirs(results_dir, exist_ok=True)
+    # 创建结果目录
+    results_dir = f"best_solution_{timestamp}"
+    os.makedirs(results_dir, exist_ok=True)
 
     try:
         # 1. 保存个体基本信息

@@ -38,7 +38,7 @@ def main():
         print("🔄 正在加载需求数据...")
 
         # 指定需求数据文件路径（需要先运行data_generator.py生成）
-        demand_data_file = "demand_data_20250720_174147.json"  # 请根据实际生成的文件名修改
+        demand_data_file = "需求数据_demand_data_20251022_154125.json"  # 请根据实际生成的文件名修改
 
         # print("🔄 需求数据加载成功...", demand_data_file)
 
@@ -126,7 +126,6 @@ def main():
             'verbose': True,
 
             'num_HallOfFame': parameters['num_HallOfFame']
-
         }
 
         print(f"种群大小: {ga_params['population_size']}")
@@ -160,7 +159,7 @@ def main():
 
         from customized_genetic_algorithm import run_genetic_algorithm_with_initialization
 
-        final_population, logbook, cost_history = run_genetic_algorithm_with_initialization(
+        final_population, logbook, cost_history, all_individuals_history, generation_averages = run_genetic_algorithm_with_initialization(
             population_size=ga_params['population_size'],
             num_vehicles=ga_params['num_vehicles'],
             max_modules=ga_params['max_modules'],
@@ -206,7 +205,7 @@ def main():
             success = analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook, cost_history, results_dir, timestamp)
 
             if success:
-                print("✅ 最佳个体分 析和保存完成")
+                print("✅ 最佳个体分析和保存完成")
             else:
                 print("⚠️ 最佳个体分析过程中出现问题")
 

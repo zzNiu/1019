@@ -54,14 +54,14 @@ kappa_F = 15
 C_unserved=15
 
 # 时间长度，用于生成需求数据
-NUM_TIMESTAMPS = 50
+NUM_TIMESTAMPS = 120
 
 
 # 遗传算法相关参数
 # 种群规模
 NUM_POPSIZE = 10
 # 迭代代数
-MAX_GENERATIONS = 20
+MAX_GENERATIONS = 10
 # 名人堂数量
 num_HallOfFame = 5
 # 交叉概率
