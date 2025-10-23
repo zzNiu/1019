@@ -198,6 +198,20 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     print('初始种群评估完成')
     check_station_info_existence(population, 0)
 
+    # ==================== 新增：初始化收敛检查器 ====================
+    # 记录到目前为止的最佳适应度
+    best_fitness_so_far = gen_min if math.isfinite(gen_min) else float('inf')
+    # 记录连续没有改善的代数
+    generations_no_improvement = 0
+
+    # 从 parameters 字典中获取配置，如果未提供则使用默认值
+    patience = parameters.get('early_stopping_patience', 10)
+    tolerance = parameters.get('early_stopping_tolerance', 1e-4)
+
+    print(f"\n[收敛检查] 启动。耐心={patience}代, 阈值={tolerance}")
+    print(f"[收敛检查] 第 0 代最优解: {best_fitness_so_far:.6f}")
+    # ================================================================
+
     # 新增：记录第0代所有个体信息和平均值
     record_generation_data(population)
     # 记录最优个体成本
@@ -206,6 +220,10 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     logbook.record(gen=0, nevals=len(population), avg=gen_avg, min=gen_min, max=gen_max)
     if verbose:
         print(logbook.stream)
+
+    # ==================== 新增：初始化收敛代数变量 ====================
+    convergence_generation = None
+    # ================================================================
 
     # 种群进化
     print('----进入遗传算法 步骤4 种群开始进化----')
@@ -315,6 +333,37 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
         logbook.record(gen=gen, nevals=len(offspring), avg=gen_avg, min=gen_min, max=gen_max)
 
+        # ==================== 新增：提前停止（收敛）检查 ====================
+        if math.isfinite(gen_min):
+            # 计算与历史最优解的差距
+            improvement = best_fitness_so_far - gen_min
+
+            if improvement > tolerance:
+                # 1. 适应度有明显改善
+                print(f"  [收敛检查] 第 {gen} 代发现新最优解: {gen_min:.6f} (改善: {improvement:.6f})")
+                best_fitness_so_far = gen_min
+                generations_no_improvement = 0
+            else:
+                # 2. 适应度没有明显改善
+                generations_no_improvement += 1
+                print(f"  [收敛检查] 第 {gen} 代未发现明显改善 (连续 {generations_no_improvement}/{patience} 代)")
+
+            # 3. 检查是否达到停止条件
+            if generations_no_improvement >= patience:
+                print(f"\n--- 算法已收敛 ---")
+                print(f"连续 {patience} 代最佳适应度未见明显改善 (阈值 {tolerance})。")
+                print(f"在第 {gen} 代提前停止。")
+
+                # ==================== 新增：记录收敛代数 ====================
+                convergence_generation = gen
+                # ==========================================================
+
+                break  # <--- 关键：跳出 for 循环
+        else:
+            # 4. 如果当前代没有有效解，跳过检查
+            print(f"  [收敛检查] 第 {gen} 代无有效解，跳过检查。")
+        # ========================== 检查结束 ==========================
+
         # 新增：记录当前代所有个体信息和平均值
         record_generation_data(population)
         # 记录最优个体成本
@@ -335,7 +384,7 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     print('进化完成')
     # 返回新增的两个历史记录
-    return population, logbook, cost_history, all_individuals_history, generation_averages
+    return population, logbook, cost_history, all_individuals_history, generation_averages, convergence_generation
 
 
 def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max_modules,
@@ -371,7 +420,8 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
     if verbose:
         print("\n--- 进入遗传算法 步骤2: 运行遗传算法 ---")
 
-    final_population, logbook, cost_history, all_individuals_history, generation_averages = customized_genetic_algorithm(
+    # final_population, logbook, cost_history, all_individuals_history, generation_averages = customized_genetic_algorithm(
+    final_population, logbook, cost_history, all_individuals_history, generation_averages, convergence_generation = customized_genetic_algorithm(
         population=population,
         toolbox=toolbox,
         cxpb=cxpb,
@@ -471,7 +521,9 @@ def run_genetic_algorithm_with_initialization(population_size, num_vehicles, max
         print("\n=== 遗传算法运行完成 ===")
 
     # 返回新增的历史记录
-    return final_population, logbook, cost_history, all_individuals_history, generation_averages
+    # 返回新增的历史记录和收敛代数
+    return final_population, logbook, cost_history, all_individuals_history, generation_averages, convergence_generation
+    # return final_population, logbook, cost_history, all_individuals_history, generation_averages
 
 
 def check_station_info_existence(offspring_population, current_gen):

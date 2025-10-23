@@ -5,6 +5,8 @@ import math
 import pandas as pd
 import random
 from typing import Dict, List, Tuple
+
+from config import ω, φ
 from df_schedule_construct import reconstruct_schedule_dataframe
 
 
@@ -797,7 +799,7 @@ def simulate_with_integrated_module_system(individual, parameters, global_demand
     # 计算未服务惩罚成本
     unserved_penalty_cost = (remaining_passengers + remaining_freights) * parameters['penalty_cost_per_unit']
 
-    total_cost = passenger_waiting_cost + freight_waiting_cost + modular_bus_cost + unserved_penalty_cost
+    total_cost = ω * modular_bus_cost + φ * (passenger_waiting_cost + freight_waiting_cost) + unserved_penalty_cost
 
     # === 新增：将三种成本打包 ===
     cost_components = {
@@ -1225,7 +1227,8 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
     # 计算未服务惩罚成本
     unserved_penalty_cost = (remaining_passengers + remaining_freights) * parameters['penalty_cost_per_unit']
 
-    total_cost = passenger_waiting_cost + freight_waiting_cost + modular_bus_cost + unserved_penalty_cost
+    # total_cost = passenger_waiting_cost + freight_waiting_cost + modular_bus_cost + unserved_penalty_cost
+    total_cost = ω * modular_bus_cost + φ * (passenger_waiting_cost + freight_waiting_cost) + unserved_penalty_cost
 
     cost_components = {
         "mav_transport_cost": float(modular_bus_cost),

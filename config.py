@@ -1,5 +1,9 @@
 # 配置文件 - 只包含参数定义
 
+# 目标函数系数
+ω = 0.10
+φ = 0.90
+
 # 全局配置参数
 # 站点间行驶时间
 t_s_s1 = 5
@@ -61,7 +65,15 @@ NUM_TIMESTAMPS = 120
 # 种群规模
 NUM_POPSIZE = 10
 # 迭代代数
-MAX_GENERATIONS = 10
+MAX_GENERATIONS = 500
+
+# ==================== 新增：提前停止（收敛）参数 ====================
+# “耐心”：连续 N 代没有明显改善则停止
+EARLY_STOPPING_PATIENCE = 15
+# “阈值”：被认为是“明显改善”所需的最小适应度降低值
+EARLY_STOPPING_TOLERANCE = 1e-4
+# =================================================================
+
 # 名人堂数量
 num_HallOfFame = 5
 # 交叉概率
@@ -111,5 +123,10 @@ parameters = {
     'C_V': C_V,
     'alpha': alpha,
 
-    'beta': beta
+    'beta': beta,
+
+    # ==================== 新增：将收敛参数添加到字典 ====================
+    'early_stopping_patience': EARLY_STOPPING_PATIENCE,
+    'early_stopping_tolerance': EARLY_STOPPING_TOLERANCE
+    # =================================================================
 }

@@ -9,7 +9,10 @@ from df_schedule_construct import reconstruct_schedule_dataframe
 from plot_cost_stack import plot_cost_stack_from_history
 
 # def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None):
-def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None, cost_history=None, results_dir=None, timestamp=None):
+# def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None, cost_history=None, results_dir=None, timestamp=None):
+def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None,
+                                     cost_history=None, results_dir=None, timestamp=None,
+                                     convergence_generation=None):
 
     """详细分析并保存最佳个体"""
     print(f"\n{'='*60}")
@@ -174,8 +177,11 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
                 'remaining_freights_up': remaining_freights_up,
                 'remaining_freights_down': remaining_freights_down,
                 # (同时传入 cost_components 以备后用)
-                'cost_components': cost_components
+                'cost_components': cost_components,
                 # ==================== 添加新行：结束 ====================
+
+                'convergence_generation': convergence_generation  # <--- 在这里添加新行
+
             },
             results_dir=results_dir,  # <-- 传递目录
             timestamp=timestamp  # <-- 新增：传递时间戳
@@ -429,3 +435,15 @@ def generate_summary_report(best_individual, simulation_results, filepath):
             f.write(f"  初始代最佳适应度: {first_gen['min']:.6f}\n")
             f.write(f"  最终代最佳适应度: {last_gen['min']:.6f}\n")
             f.write(f"  改进幅度: {((first_gen['min'] - last_gen['min']) / first_gen['min'] * 100):.2f}%\n")
+
+            # ==================== 新增：写入收敛信息 ====================
+            convergence_gen = simulation_results.get('convergence_generation')
+            if convergence_gen is not None:
+                f.write(f"  收敛状态: 在第 {convergence_gen} 代提前停止 (已收敛)\n")
+            else:
+                total_run = len(simulation_results['logbook']) - 1
+                f.write(f"  收敛状态: 运行至最大代数 {total_run} (未提前停止)\n")
+            # ==========================================================
+
+            # (原有的代码)
+        f.write("\n🚗 详细车辆信息:\n")

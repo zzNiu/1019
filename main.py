@@ -10,7 +10,7 @@ from datetime import datetime
 import os
 
 # 导入配置和数据加载
-from config import parameters
+from config import parameters, ω, φ
 from demand_loader import load_global_demand_data
 
 # 导入重构后的函数
@@ -148,7 +148,7 @@ def main():
         # ==================== 1. 在这里新增创建目录的逻辑 ====================
         # 使用时间戳创建一个唯一的结果目录名
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        results_dir = f"best_solution_{timestamp}"
+        results_dir = f"best_solution_ω_{ω}_φ_{φ}_{timestamp}"
         os.makedirs(results_dir, exist_ok=True)
         print(f"结果将保存到目录: {results_dir}")
         # =================================================================
@@ -159,7 +159,7 @@ def main():
 
         from customized_genetic_algorithm import run_genetic_algorithm_with_initialization
 
-        final_population, logbook, cost_history, all_individuals_history, generation_averages = run_genetic_algorithm_with_initialization(
+        final_population, logbook, cost_history, all_individuals_history, generation_averages, convergence_generation = run_genetic_algorithm_with_initialization(
             population_size=ga_params['population_size'],
             num_vehicles=ga_params['num_vehicles'],
             max_modules=ga_params['max_modules'],
@@ -202,7 +202,16 @@ def main():
         # 步骤8: 详细分析和保存最佳个体
         if best_individual:
             print("\n--- 步骤8: 详细分析和保存最佳个体 ---")
-            success = analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook, cost_history, results_dir, timestamp)
+            success = analyze_and_save_best_individual(
+                best_individual,
+                parameters,
+                global_demand_data,
+                logbook,
+                cost_history,
+                results_dir,
+                timestamp,
+                convergence_generation=convergence_generation  # <--- 在这里添加新参数
+            )
 
             if success:
                 print("✅ 最佳个体分析和保存完成")
