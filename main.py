@@ -145,13 +145,29 @@ def main():
         halloffame = tools.HallOfFame(ga_params['num_HallOfFame'])  # 保存最好的10个个体
         print("✅ 统计和名人堂设置完成")
 
-        # ==================== 1. 在这里新增创建目录的逻辑 ====================
-        # 使用时间戳创建一个唯一的结果目录名
+        # ==================== 1. (已修改) 创建统一的结果目录 ====================
+
+        # 使用时间戳为“本次运行”创建一个唯一的子目录名
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        results_dir = f"best_solution_ω_{ω}_φ_{φ}_{timestamp}"
+        run_folder_name = f"best_solution_ω_{ω}_φ_{φ}_{timestamp}"
+
+        # 使用 os.path.join 来组合路径，使其跨平台兼容
+        results_dir = run_folder_name
+
+        # 创建这个路径（os.makedirs 会自动创建父目录，exist_ok=True 确保已存在时_
+        # 不会报错）
         os.makedirs(results_dir, exist_ok=True)
-        print(f"结果将保存到目录: {results_dir}")
+
+        print(f"✅ 所有结果将统一保存到目录: {results_dir}")
         # =================================================================
+
+        # # ==================== 1. 在这里新增创建目录的逻辑 ====================
+        # # 使用时间戳创建一个唯一的结果目录名
+        # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # results_dir = f"best_solution_ω_{ω}_φ_{φ}_{timestamp}"
+        # os.makedirs(results_dir, exist_ok=True)
+        # print(f"结果将保存到目录: {results_dir}")
+        # # =================================================================
 
         # 步骤5: 运行遗传算法
         print("\n--- 步骤5: 运行遗传算法优化 ---")

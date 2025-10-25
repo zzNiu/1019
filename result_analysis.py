@@ -8,6 +8,12 @@ from simulation_generate import simulate_with_integrated_module_system
 from df_schedule_construct import reconstruct_schedule_dataframe
 from plot_cost_stack import plot_cost_stack_from_history
 
+# ==================== 新增：导入甘特图绘制函数 ====================
+from result_gantt_plot import draw_station_bar_plot, generate_schedule_gantt_charts
+
+
+# =================================================================
+
 # def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None):
 # def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None, cost_history=None, results_dir=None, timestamp=None):
 def analyze_and_save_best_individual(best_individual, parameters, global_demand_data, logbook=None,
@@ -200,9 +206,9 @@ def save_best_individual_results(best_individual, simulation_results, results_di
     """保存最佳个体的详细结果"""
     print(f"\n💾 保存最佳个体结果...")
 
-    # 创建结果目录
-    results_dir = f"best_solution_{timestamp}"
-    os.makedirs(results_dir, exist_ok=True)
+    # # 创建结果目录
+    # results_dir = f"best_solution_{timestamp}"
+    # os.makedirs(results_dir, exist_ok=True)
 
     try:
         # 1. 保存个体基本信息
@@ -316,6 +322,24 @@ def save_best_individual_results(best_individual, simulation_results, results_di
         # 6. 生成总结报告
         generate_summary_report(best_individual, simulation_results, f"{results_dir}/summary_report.txt")
         print(f"  ✅ 总结报告已保存到: {results_dir}/summary_report.txt")
+
+        # ==================== 新增：调用甘特图绘制 ====================
+        # 确保 simulation_details.xlsx 已经保存（或至少 df_enriched 已可用）
+        if not simulation_results['df_enriched'].empty:
+            try:
+                print(f"  🎨 生成调度甘特图...")
+                generate_schedule_gantt_charts(
+                    simulation_details_df=simulation_results['df_enriched'],
+                    save_dir=results_dir
+                )
+                print(f"  ✅ 调度甘特图已保存到: {results_dir}/")
+            except Exception as e:
+                print(f"  ⚠️ 生成调度甘特图失败: {e}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print(f"  ℹ️ 跳过甘特图绘制，因为仿真详情 (df_enriched) 为空。")
+        # ==========================================================
 
         print(f"\n🎉 所有结果已保存到目录: {results_dir}")
         return results_dir
