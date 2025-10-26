@@ -7,7 +7,7 @@
 import os
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.dates import DateFormatter
+from matplotlib.dates import DateFormatter, MinuteLocator
 import numpy as np
 import pandas as pd
 
@@ -51,8 +51,8 @@ def draw_station_bar_plot(data: pd.DataFrame, title: str, save_dir: str) -> str:
 
     # ---------------- 1.4 画布 ----------------
     fig, ax = plt.subplots(figsize=(16, 10))
-    shown = {"Passenger": False, "Freight": False}
-    # shown = {"Capacity": False, "Passenger": False, "Freight": False}
+    # shown = {"Passenger": False, "Freight": False}
+    shown = {"Capacity": False, "Passenger": False, "Freight": False}
 
     # ---------------- 1.5 动态 bar 宽度 ----------------
     time_span = (data["到达时间"].max() - data["到达时间"].min()).total_seconds()
@@ -80,12 +80,12 @@ def draw_station_bar_plot(data: pd.DataFrame, title: str, save_dir: str) -> str:
             np_ = p / max_val
             nf = f / max_val
 
-            # label_c = "Capacity" if not shown["Capacity"] else None
+            label_c = "Capacity" if not shown["Capacity"] else None
             label_p = "Passenger" if not shown["Passenger"] else None
             label_f = "Freight" if not shown["Freight"] else None
 
-            # plt.bar(t - bar_width, nc, width=bar_width, bottom=y_base,
-            #         color='gold', edgecolor='black', linewidth=0.6, label=label_c)
+            plt.bar(t - bar_width, nc, width=bar_width, bottom=y_base,
+                    color='gold', edgecolor='black', linewidth=0.6, label=label_c)
             ax.bar(t, np_, width=bar_width, bottom=y_base,
                    color='steelblue', edgecolor='black', linewidth=0.6, label=label_p)
             ax.bar(t + bar_width, nf, width=bar_width, bottom=y_base,
@@ -99,7 +99,7 @@ def draw_station_bar_plot(data: pd.DataFrame, title: str, save_dir: str) -> str:
             if f > 0:
                 ax.text(t + bar_width, y_base + nf + 0.05, f"{f}", ha='center', va='bottom', fontsize=6)
 
-            # shown["Capacity"] = True
+            shown["Capacity"] = True
             shown["Passenger"] = True
             shown["Freight"] = True
 
@@ -119,12 +119,15 @@ def draw_station_bar_plot(data: pd.DataFrame, title: str, save_dir: str) -> str:
     ax.set_yticks(ticks=range(len(stations)))
     ax.set_yticklabels([f"{s}" for s in stations])
     # ax.invert_yaxis()  # ✅ 地理顺序：从上到下
-    ax.set_xlabel("Time")
+    ax.set_xlabel("Time (Minute)")
     ax.set_ylabel("Station ID")
     ax.set_title(title)
     ax.grid(True, axis='x', linestyle='--', alpha=0.5)
     ax.legend(loc='upper right')
-    ax.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))
+    # ax.xaxis.set_major_formatter(DateFormatter('%H:%M:%S'))
+    ax.xaxis.set_major_formatter(DateFormatter('%H:%M'))
+    # 设置横坐标刻度：每1分钟显示1个（interval=1可调整，如5分钟显示1个则设为5）
+    ax.xaxis.set_major_locator(MinuteLocator(interval=5))
     fig.autofmt_xdate()
     plt.tight_layout()
 

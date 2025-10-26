@@ -1103,25 +1103,85 @@ def simulate_and_evaluate_individual(individual, parameters, global_demand_data,
 
                 # 记录模块分析结果（此处的module_analysis是基于需求计算的，不包含随机调整）
                 module_analysis_records.append({
-                    'timestamp': arrival_time, 'vehicle_id': vid, 'station_id': station_id,
-                    'direction': direction, 'analysis': module_analysis
+                    'timestamp': arrival_time,
+                    'vehicle_id': vid,
+                    'station_id': station_id,
+                    'direction': direction,
+                    'analysis': module_analysis
                 })
 
                 # 记录详细信息 (与原函数一致)
                 df_enriched.append({
-                    "车辆ID": vid, "站点ID": station_id, "方向": direction, "到达时间": arrival_time,
-                    "调整前乘客模块": current_p_modules, "调整前货物模块": current_f_modules,
-                    "调整后乘客模块": adjusted_p_modules, "调整后货物模块": adjusted_f_modules,
-                    "模块增量_乘客": delta_p, "模块增量_货物": delta_f,
-                    "下车后在车乘客": onboard_p_after, "上车乘客": boarded_p,
-                    "下车后在车货物": onboard_f_after, "上车货物": boarded_f,
+                    "车辆ID": vid,
+                    "站点ID": station_id,
+                    "方向": direction,
+                    "到达时间": arrival_time,
+
+                    # 模块信息（调整前后）
+                    "调整前乘客模块": current_p_modules,
+                    "调整前货物模块": current_f_modules,
+                    "调整前总模块数": current_p_modules + current_f_modules,
+                    "调整后乘客模块": adjusted_p_modules,
+                    "调整后货物模块": adjusted_f_modules,
+                    "调整后总模块数": adjusted_p_modules + adjusted_f_modules,
+                    "模块增量_乘客": delta_p,
+                    "模块增量_货物": delta_f,
+
+                    # 乘客/货物流动信息
+                    "下车前在车乘客": onboard_p_before,
+                    "下车前在车货物": onboard_f_before,
+                    "下车乘客": alighted_p,
+                    "下车货物": alighted_f,
+                    "下车后在车乘客": onboard_p_after,
+                    "下车后在车货物": onboard_f_after,
+
+                    "等待乘客需求": waiting_p,
+                    "等待货物需求": waiting_f,
+                    "上车乘客": boarded_p,
+                    "上车货物": boarded_f,
+
                     # ==================== 代码修改处 开始 ====================
                     "上车后在车乘客数量": onboard_p_after + boarded_p,
                     "上车后在车货物数量": onboard_f_after + boarded_f,
                     # ==================== 代码修改处 结束 ====================
-                    "乘客等待时间成本": served_passenger_waiting_time, "货物等待时间成本": served_freight_waiting_time,
-                    "站点进站前库存": station_module_stock_before, "站点出站后库存": station_module_stock_after,
+
+                    # 容量信息（调整后）
+                    "调整后乘客总容量": adjusted_p_capacity,
+                    "调整后货物总容量": adjusted_f_capacity,
+                    "调整后乘客可用容量": available_p_capacity,
+                    "调整后货物可用容量": available_f_capacity,
+
+                    # 成本信息
+                    "乘客等待时间成本": served_passenger_waiting_time,
+                    "货物等待时间成本": served_freight_waiting_time,
+
+                    # 库存信息
+                    "站点进站前库存": station_module_stock_before,
+                    "站点出站后库存": station_module_stock_after,
+
+                    # # 模块分析结果
+                    # "最少需要乘客模块": module_analysis['passenger_analysis']['min_modules_needed'],
+                    # "最优乘客模块": module_analysis['passenger_analysis']['optimal_modules'],
+                    # "最少需要货物模块": module_analysis['freight_analysis']['min_modules_needed'],
+                    # "最优货物模块": module_analysis['freight_analysis']['optimal_modules'],
+                    # "乘客模块调整范围": f"{module_analysis['adjustment_ranges']['passenger_modules']['delta_range']}",
+                    # "货物模块调整范围": f"{module_analysis['adjustment_ranges']['freight_modules']['delta_range']}",
+                    # "总模块可行范围": f"{module_analysis['module_constraints']['feasible_total_range']}",
                 })
+                # df_enriched.append({
+                #     "车辆ID": vid, "站点ID": station_id, "方向": direction, "到达时间": arrival_time,
+                #     "调整前乘客模块": current_p_modules, "调整前货物模块": current_f_modules,
+                #     "调整后乘客模块": adjusted_p_modules, "调整后货物模块": adjusted_f_modules,
+                #     "模块增量_乘客": delta_p, "模块增量_货物": delta_f,
+                #     "下车后在车乘客": onboard_p_after, "上车乘客": boarded_p,
+                #     "下车后在车货物": onboard_f_after, "上车货物": boarded_f,
+                #     # ==================== 代码修改处 开始 ====================
+                #     "上车后在车乘客数量": onboard_p_after + boarded_p,
+                #     "上车后在车货物数量": onboard_f_after + boarded_f,
+                #     # ==================== 代码修改处 结束 ====================
+                #     "乘客等待时间成本": served_passenger_waiting_time, "货物等待时间成本": served_freight_waiting_time,
+                #     "站点进站前库存": station_module_stock_before, "站点出站后库存": station_module_stock_after,
+                # })
 
     if infeasible:
         print("❌ 方案不可行")

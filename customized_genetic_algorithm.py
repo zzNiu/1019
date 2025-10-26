@@ -21,7 +21,9 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
 
     # 成本历史（按每代最优个体记录）
     cost_history = {
+        "fitness": [],  # <--- 新增
         "mav_transport": [],
+        "waiting_time_cost": [],  # <--- 新增
         "passenger_waiting": [],
         "freight_waiting": [],
         "unserved_penalty_cost": [],
@@ -33,14 +35,14 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
     all_individuals_history = []  # 每一项是某一代所有个体的数据
     # 新增：每代各项指标的平均值
     generation_averages = {
+        "fitness": [],
         "mav_transport": [],
+        "waiting_time_cost": [],  # <--- 在这里添加新行
         "passenger_waiting": [],
         "freight_waiting": [],
         "unserved_penalty_cost": [],
         "unserved_passenger": [],
-        "unserved_freight": [],
-        "fitness": [],
-        "waiting_time_cost": []  # <--- 在这里添加新行
+        "unserved_freight": []
     }
 
     # 记录当前种群所有个体的信息和计算平均值
@@ -156,12 +158,37 @@ def customized_genetic_algorithm(population, toolbox, cxpb, mutpb, ngen, stats=N
                 cost_history[k].append(0.0)
             return
 
-        cost_history["mav_transport"].append(float(cc.get("mav_transport_cost", 0.0)))
-        cost_history["passenger_waiting"].append(float(cc.get("passenger_waiting_cost", 0.0)))
-        cost_history["freight_waiting"].append(float(cc.get("freight_waiting_cost", 0.0)))
-        cost_history["unserved_penalty_cost"].append(float(cc.get("unserved_penalty_cost", 0.0)))
-        cost_history["unserved_passenger"].append(float(cc.get("unserved_passengers", 0.0)))
-        cost_history["unserved_freight"].append(float(cc.get("unserved_freights", 0.0)))
+        # --- 新增和修改的逻辑 ---
+        # 1. 获取所有需要的成本值
+        mav_cost = float(cc.get("mav_transport_cost", 0.0))
+        p_wait_cost = float(cc.get("passenger_waiting_cost", 0.0))
+        f_wait_cost = float(cc.get("freight_waiting_cost", 0.0))
+        unserved_p_cost = float(cc.get("unserved_penalty_cost", 0.0))
+        unserved_p_num = float(cc.get("unserved_passengers", 0.0))
+        unserved_f_num = float(cc.get("unserved_freights", 0.0))
+
+        # 2. 计算派生值 (总等待时间成本)
+        total_wait_cost = p_wait_cost + f_wait_cost
+
+        # 3. 记录适应度 (总成本)
+        cost_history["fitness"].append(best.fitness.values[0])
+
+        # 4. 按统一顺序记录所有成本
+        cost_history["mav_transport"].append(mav_cost)
+        cost_history["waiting_time_cost"].append(total_wait_cost)  # <--- 记录新增字段
+        cost_history["passenger_waiting"].append(p_wait_cost)
+        cost_history["freight_waiting"].append(f_wait_cost)
+        cost_history["unserved_penalty_cost"].append(unserved_p_cost)
+        cost_history["unserved_passenger"].append(unserved_p_num)
+        cost_history["unserved_freight"].append(unserved_f_num)
+        # --- 逻辑结束 ---
+
+        # cost_history["mav_transport"].append(float(cc.get("mav_transport_cost", 0.0)))
+        # cost_history["passenger_waiting"].append(float(cc.get("passenger_waiting_cost", 0.0)))
+        # cost_history["freight_waiting"].append(float(cc.get("freight_waiting_cost", 0.0)))
+        # cost_history["unserved_penalty_cost"].append(float(cc.get("unserved_penalty_cost", 0.0)))
+        # cost_history["unserved_passenger"].append(float(cc.get("unserved_passengers", 0.0)))
+        # cost_history["unserved_freight"].append(float(cc.get("unserved_freights", 0.0)))
 
     logbook = tools.Logbook()
     logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])

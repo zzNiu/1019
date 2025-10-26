@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 import os
 
-from simulation_generate import simulate_with_integrated_module_system
+from simulation_generate import simulate_and_evaluate_individual
 from df_schedule_construct import reconstruct_schedule_dataframe
 from plot_cost_stack import plot_cost_stack_from_history
 
@@ -71,7 +71,7 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
         all_freights_down = all_freights - all_freights_up
         # ==================== 初始需求计算结束 ====================
 
-        vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components = simulate_with_integrated_module_system(
+        vehicle_schedule, total_cost, remaining_passengers, remaining_freights, failure_records, df_enriched, module_analysis_records, cost_components = simulate_and_evaluate_individual(
             best_individual, parameters, global_demand_data,
             global_demand_data["passenger_demand_up"],
             global_demand_data["passenger_demand_down"],
@@ -385,6 +385,15 @@ def generate_summary_report(best_individual, simulation_results, filepath):
         # # 基本信息
         # (这是替换后的新代码块)
         f.write("📊 基本性能指标:\n")
+        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+
+        f.write(f"  总成本: {simulation_results['cost_components'][]:.2f}\n")
+
+        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        f.write(f"  总成本: {simulation_results['']:.2f}\n")
+        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
         f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
 
         # --- 从 simulation_results 中获取新数据 ---
