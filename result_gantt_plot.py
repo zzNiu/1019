@@ -162,7 +162,7 @@ def generate_schedule_gantt_charts(simulation_details_df: pd.DataFrame, save_dir
     df["站点ID"] = df["站点ID"].astype(int)
 
     # 时间转换
-    df["到达时间"] = pd.to_datetime(df["到达时间"], unit="s")
+    df["到达时间"] = pd.to_datetime(df["到达时间"], unit="m")
 
     # 分上下行
     df_up = df[df["方向"] == "up"].copy()

@@ -186,7 +186,15 @@ def analyze_and_save_best_individual(best_individual, parameters, global_demand_
                 'cost_components': cost_components,
                 # ==================== 添加新行：结束 ====================
 
-                'convergence_generation': convergence_generation  # <--- 在这里添加新行
+                # ==================== 插入新代码：开始 ====================
+                # (传递总需求数据)
+                'total_passengers_up': all_passengers_up,
+                'total_freights_up': all_freights_up,
+                'total_passengers_down': all_passengers_down,
+                'total_freights_down': all_freights_down,
+                # ==================== 插入新代码：结束 ====================
+
+                'convergence_generation': convergence_generation,  # <--- 在这里添加新行
 
             },
             results_dir=results_dir,  # <-- 传递目录
@@ -274,54 +282,19 @@ def save_best_individual_results(best_individual, simulation_results, results_di
             except Exception as e:
                 print(f"  ⚠️ 生成成本进化曲线失败: {e}")
 
-            # # 生成平滑成本进化曲线
-            # try:
-            #     from smooth_cost_plotter import SmoothCostPlotter
-            #     print(f"  🎨 生成平滑成本进化曲线...")
-            #
-            #     plotter = SmoothCostPlotter(simulation_results['logbook'])
-            #
-            #     # 生成对比图
-            #     comparison_path = f"{results_dir}/smooth_cost_comparison.png"
-            #     plotter.plot_comparison(save_path=comparison_path)
-            #
-            #     # 生成最佳的样条插值平滑图
-            #     spline_path = f"{results_dir}/smooth_cost_spline.png"
-            #     plotter.plot_best_smooth(method='spline', save_path=spline_path)
-            #
-            #     print(f"  ✅ 平滑成本进化曲线已保存到: {results_dir}/")
-            # except Exception as e:
-            #     print(f"  ⚠️ 生成平滑成本进化曲线失败: {e}")
-
-        # # 生成详细的甘特图
-        # try:
-        #     from enhanced_gantt_plot import EnhancedGanttPlotter
-        #     print(f"   生成调度甘特图...")
-        #
-        #     # 创建甘特图绘制器
-        #     gantt_plotter = EnhancedGanttPlotter(
-        #         best_individual=best_individual,
-        #         schedule_data=simulation_results['schedule_data']
-        #     )
-        #
-        #     # 生成综合甘特图
-        #     gantt_plotter.generate_comprehensive_gantt_chart(save_dir=results_dir)
-        #
-        #     # 生成详细车辆甘特图
-        #     gantt_plotter.generate_detailed_vehicle_gantt(save_dir=results_dir)
-        #
-        #     # # 生成载荷分析图表
-        #     # gantt_plotter.generate_load_analysis_chart(save_dir=results_dir)
-        #
-        #     print(f"  ✅ 调度甘特图已保存到: {results_dir}/")
-        # except Exception as e:
-        #     print(f"  ⚠️ 生成调度甘特图失败: {e}")
-        #     import traceback
-        #     traceback.print_exc()
-
         # 6. 生成总结报告
+        print('  生成简略的总结报告')
         generate_summary_report(best_individual, simulation_results, f"{results_dir}/summary_report.txt")
         print(f"  ✅ 总结报告已保存到: {results_dir}/summary_report.txt")
+
+        # ==================== 新增：调用详细报告 ====================
+        try:
+            print('  生成详细的总结报告')
+            generate_summary_detail_report(best_individual, simulation_results,f"{results_dir}/summary_detail_report.txt")
+            print(f"  ✅ 详细总结报告已保存到: {results_dir}/summary_detail_report.txt")
+        except Exception as e:
+            print(f"  ⚠️ 生成详细总结报告失败: {e}")
+        # ==========================================================
 
         # ==================== 新增：调用甘特图绘制 ====================
         # 确保 simulation_details.xlsx 已经保存（或至少 df_enriched 已可用）
@@ -375,53 +348,269 @@ def print_solution(final_population, logbook):
     return best_individual
 
 
-def generate_summary_report(best_individual, simulation_results, filepath):
-    """生成总结报告"""
+def generate_summary_detail_report(best_individual, simulation_results, filepath):
+    """生成总结报告（超详细版）"""
     with open(filepath, 'w', encoding='utf-8') as f:
-        f.write("="*60 + "\n")
-        f.write("🏆 最佳调度方案总结报告\n")
-        f.write("="*60 + "\n\n")
+        f.write("=" * 80 + "\n")
+        f.write("🏆 最佳调度方案总结报告 (详细版)\n")
+        f.write("=" * 80 + "\n\n")
 
-        # # 基本信息
-        # (这是替换后的新代码块)
+        # --- 1. 基本性能指标 ---
         f.write("📊 基本性能指标:\n")
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        f.write(f"  总成本 (Fitness): {simulation_results.get('total_cost', 0):.2f}\n")
+        f.write(f"  系统总服务乘客: {simulation_results.get('total_served_passengers', '未知')}\n")
+        f.write(f"  系统总服务货物: {simulation_results.get('total_served_freight', '未知')}\n")
+        f.write(f"  系统总剩余乘客: {simulation_results.get('remaining_passengers', '未知')}\n")
+        f.write(f"  系统总剩余货物: {simulation_results.get('remaining_freights', '未知')}\n")
+        failure_records = simulation_results.get('failure_records', [])
+        f.write(f"  仿真失败记录数: {len(failure_records)}\n\n")
 
-        f.write(f"  总成本: {simulation_results['cost_components'][]:.2f}\n")
+        # --- 2. 需求服务详情 (新增模块) ---
+        f.write("📈 需求服务详情:\n")
 
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        f.write(f"  总成本: {simulation_results['']:.2f}\n")
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+        # (从 simulation_results 获取总需求数据 - 这是第1步添加的)
+        total_p_up = simulation_results.get('total_passengers_up', 0)
+        total_f_up = simulation_results.get('total_freights_up', 0)
+        total_p_down = simulation_results.get('total_passengers_down', 0)
+        total_f_down = simulation_results.get('total_freights_down', 0)
 
-        # --- 从 simulation_results 中获取新数据 ---
-        # (使用 .get() 方法，如果键不存在则返回 '未知'，确保安全)
+        # (获取未服务数据)
+        rem_p_up = simulation_results.get('remaining_passengers_up', 0)
+        rem_f_up = simulation_results.get('remaining_freights_up', 0)
+        rem_p_down = simulation_results.get('remaining_passengers_down', 0)
+        rem_f_down = simulation_results.get('remaining_freights_down', 0)
+
+        # (计算服务量)
+        served_p_up = total_p_up - rem_p_up
+        served_f_up = total_f_up - rem_f_up
+        served_p_down = total_p_down - rem_p_down
+        served_f_down = total_f_down - rem_f_down
+
+        f.write(f"  上行乘客 (Up P):   总需求={total_p_up}, 已服务={served_p_up}, 未服务={rem_p_up}\n")
+        f.write(f"  上行货物 (Up F):   总需求={total_f_up}, 已服务={served_f_up}, 未服务={rem_f_up}\n")
+        f.write(f"  下行乘客 (Down P): 总需求={total_p_down}, 已服务={served_p_down}, 未服务={rem_p_down}\n")
+        f.write(f"  下行货物 (Down F): 总需求={total_f_down}, 已服务={served_f_down}, 未服务={rem_f_down}\n\n")
+
+        # --- 3. 成本详细分解 (使用修正后的键名) ---
+        f.write("💰 成本详细分解:\n")
+        cost_comp = simulation_results.get('cost_components')
+        if cost_comp:
+            f.write(f"  MAV能量消耗: {cost_comp.get('mav_transport_cost', 0):.2f}\n")
+            f.write(f"  总等待成本: {cost_comp.get('waiting_cost', 0):.2f}\n")
+            f.write(f"    - 乘客等待成本: {cost_comp.get('passenger_waiting_cost', 0):.2f}\n")
+            f.write(f"    - 货物等待成本: {cost_comp.get('freight_waiting_cost', 0):.2f}\n")
+            f.write(f"  惩罚成本 (总计): {cost_comp.get('unserved_penalty_cost', 0):.2f}\n")
+            f.write(f"    - 未服务乘客 (人数): {cost_comp.get('unserved_passengers', 0):.0f}\n")
+            f.write(f"    - 未服务货物 (件数): {cost_comp.get('unserved_freights', 0):.0f}\n\n")
+        else:
+            f.write("  (未找到详细的成本分解 'cost_components')\n\n")
+
+        # --- 4. 车辆配置统计 (初始配置) ---
+        f.write("🚌 车辆配置统计 (初始配置):\n")
+        # (这部分代码与上一版相同，保持不变)
+        total_p_modules = 0
+        total_f_modules = 0
+        for direction in ['up', 'down']:
+            direction_name = "上行" if direction == "up" else "下行"
+            f.write(f"\n  {direction_name}方向:\n")
+            vehicle_dispatch = best_individual[direction]['vehicle_dispatch']
+            initial_allocation = best_individual[direction]['initial_allocation']
+            total_vehicles = len(vehicle_dispatch)
+            dir_passenger_modules = sum(alloc['passenger_modules'] for alloc in initial_allocation.values())
+            dir_freight_modules = sum(alloc['freight_modules'] for alloc in initial_allocation.values())
+            total_p_modules += dir_passenger_modules
+            total_f_modules += dir_freight_modules
+            f.write(f"    车辆数量: {total_vehicles}\n")
+            f.write(f"    总乘客模块: {dir_passenger_modules}\n")
+            f.write(f"    总货运模块: {dir_freight_modules}\n")
+            headways = [dispatch['headway'] for dispatch in vehicle_dispatch.values()]
+            if headways:
+                f.write(f"    车头时距范围: {min(headways):.1f} - {max(headways):.1f} 分钟\n")
+            else:
+                f.write("    (无车辆发车)\n")
+        f.write(f"\n  系统总计:\n")
+        f.write(f"    总乘客模块 (初始): {total_p_modules}\n")
+        f.write(f"    总货运模块 (初始): {total_f_modules}\n\n")
+
+        # --- 5. 详细车辆信息 (初始配置) ---
+        f.write("🚗 详细车辆信息 (初始配置):\n")
+        # (这部分代码与上一版相同，保持不变)
+        for direction in ['up', 'down']:
+            direction_name = "上行" if direction == "up" else "下行"
+            f.write(f"\n  {direction_name}方向车辆:\n")
+            if not best_individual[direction]['vehicle_dispatch']:
+                f.write("    (无车辆)\n")
+                continue
+            for vid, dispatch_info in best_individual[direction]['vehicle_dispatch'].items():
+                allocation = best_individual[direction]['initial_allocation'][vid]
+                f.write(f"    车辆{vid}: 发车时间={dispatch_info['arrival_time']}分钟, "
+                        f"车头时距={dispatch_info['headway']}分钟, "
+                        f"乘客模块={allocation['passenger_modules']}, "
+                        f"货运模块={allocation['freight_modules']}\n")
+        f.write("\n")
+
+        # --- 6. 模块调整总结 ---
+        f.write("🔄 模块调整总结 (如果启用):\n")
+        # (这部分代码与上一版相同，保持不变)
+        adjustment_found = False
+        for direction in ['up', 'down']:
+            direction_name = "上行" if direction == "up" else "下行"
+            if 'module_adjustments' in best_individual[direction] and best_individual[direction]['module_adjustments']:
+                adjustment_found = True
+                f.write(f"  {direction_name}方向:\n")
+                for adj_rule in best_individual[direction]['module_adjustments']:
+                    f.write(f"    - 规则: {adj_rule}\n")
+            else:
+                f.write(f"  {direction_name}方向: (无调整规则)\n")
+        if not adjustment_found:
+            f.write("  (未启用或未生成模块调整规则)\n")
+        f.write("\n")
+
+        # --- 7. 进化过程 ---
+        f.write("🧬 进化过程:\n")
+        # (这部分代码与上一版相同，保持不变)
+        if simulation_results.get('logbook'):
+            logbook = simulation_results['logbook']
+            f.write(f"  总代数: {len(logbook)}\n")
+            first_gen = logbook[0]
+            last_gen = logbook[-1]
+            try:
+                first_min_str = first_gen.get('min', 'N/A')
+                last_min_str = last_gen.get('min', 'N/A')
+                initial_min = float(first_min_str)
+                final_min = float(last_min_str)
+                f.write(f"  初始代最佳适应度: {initial_min:.6f}\n")
+                f.write(f"  最终代最佳适应度: {final_min:.6f}\n")
+                if initial_min > 0:
+                    improvement = ((initial_min - final_min) / initial_min * 100)
+                    f.write(f"  改进幅度: {improvement:.2f}%\n")
+                else:
+                    f.write("  改进幅度: N/A (初始成本为0)\n")
+            except (ValueError, TypeError):
+                f.write("  (无法计算适应度改进)\n")
+            convergence_gen = simulation_results.get('convergence_generation')
+            if convergence_gen is not None:
+                f.write(f"  收敛状态: 在第 {convergence_gen} 代提前停止 (已收敛)\n")
+            else:
+                total_run = len(logbook) - 1
+                f.write(f"  收敛状态: 运行至最大代数 {total_run} (未提前停止)\n")
+        else:
+            f.write("  (无 Logbook 信息)\n")
+        f.write("\n")
+
+        # --- 8. 详细车辆/站点日志 (新增模块) ---
+        f.write("=" * 80 + "\n")
+        f.write("Detailed Vehicle & Station Log (来自 simulation_details.xlsx)\n")
+        f.write("=" * 80 + "\n")
+
+        df_log = simulation_results.get('df_enriched')
+
+        if df_log is None or df_log.empty:
+            f.write("  (无详细仿真日志 'df_enriched' 可用)\n")
+        else:
+            # (假设 'df_enriched' 包含这些列)
+            # (您可能需要根据您的 'df_enriched' (即 simulation_details.xlsx) 中的实际列名调整这里的列名)
+            REQUIRED_COLS = [
+                'vid', 'direction', 'station_id', 'arrival_time', 'departure_time',
+                'p_modules_onboard', 'f_modules_onboard',
+                'p_modules_added', 'p_modules_removed',
+                'f_modules_added', 'f_modules_removed',
+                'station_p_module_stock', 'station_f_module_stock'
+            ]
+
+            # 检查列是否存在
+            missing_cols = [col for col in REQUIRED_COLS if col not in df_log.columns]
+            if missing_cols:
+                f.write(f"  (警告: df_enriched 缺少以下关键列，无法生成详细日志: {missing_cols})\n")
+            else:
+                # 按车辆ID和时间排序
+                df_log_sorted = df_log.sort_values(by=['vid', 'arrival_time'])
+
+                current_vid = None
+                for _, row in df_log_sorted.iterrows():
+                    vid = row['vid']
+                    if vid != current_vid:
+                        # 打印新车辆的表头
+                        current_vid = vid
+                        f.write(f"\n--- 车辆 {vid} (方向: {row['direction']}) ---\n")
+                        f.write(
+                            f"  站点 |  到达 |  出发 |"
+                            f" 车载(P/F) | 增减(P) | 增减(F) |"
+                            f" 站点库存(P/F)\n"
+                        )
+                        f.write(f"  " + "-" * 75 + "\n")
+
+                    # 格式化数据
+                    station = f"{row['station_id']:>4}"
+                    arr_time = f"{row['arrival_time']:>6.1f}"
+                    dep_time = f"{row['departure_time']:>6.1f}"
+
+                    onboard = f"{int(row['p_modules_onboard']):>2}/{int(row['f_modules_onboard']):<2}"
+
+                    p_change = f"+{int(row['p_modules_added'])}/-{int(row['p_modules_removed'])}"
+                    f_change = f"+{int(row['f_modules_added'])}/-{int(row['f_modules_removed'])}"
+
+                    stock = f"{int(row['station_p_module_stock']):>2}/{int(row['station_f_module_stock']):<2}"
+
+                    # 打印行
+                    f.write(
+                        f"  {station} | {arr_time} | {dep_time} |"
+                        f" {onboard:<7} | {p_change:<7} | {f_change:<7} |"
+                        f" {stock:<10}\n"
+                    )
+
+        f.write("\n" + "=" * 80 + "\n")
+        f.write("报告结束\n")
+        f.write("=" * 80 + "\n")
+
+def generate_summary_report(best_individual, simulation_results, filepath):
+    """生成总结报告（增强版）"""
+    print('生成总结报告')
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write("=" * 60 + "\n")
+        f.write("🏆 最佳调度方案总结报告\n")
+        f.write("=" * 60 + "\n\n")
+
+        # --- 1. 基本性能指标 ---
+        f.write("📊 基本性能指标:\n")
+        f.write(f"  总成本 (Fitness): {simulation_results.get('total_cost', 0):.2f}\n")  # 使用 .get 增加安全性
+
+        # 从 simulation_results 中获取服务数据
         total_served_p = simulation_results.get('total_served_passengers', '未知')
         total_served_f = simulation_results.get('total_served_freight', '未知')
-        rem_p_up = simulation_results.get('remaining_passengers_up', '未知')
-        rem_p_down = simulation_results.get('remaining_passengers_down', '未知')
-        rem_f_up = simulation_results.get('remaining_freights_up', '未知')
-        rem_f_down = simulation_results.get('remaining_freights_down', '未知')
+        # rem_p_up = simulation_results.get('remaining_passengers_up', '未知')
+        # rem_p_down = simulation_results.get('remaining_passengers_down', '未知')
+        # rem_f_up = simulation_results.get('remaining_freights_up', '未知')
+        # rem_f_down = simulation_results.get('remaining_freights_down', '未知')
 
-        # --- 按照您要求的格式写入文件 ---
-        f.write(f"   系统服务乘客: {total_served_p}, 系统服务货物: {total_served_f}\n")
-        f.write(f"   up剩余乘客: {rem_p_up}, up剩余货物: {rem_f_up}\n")
-        f.write(f"   down剩余乘客: {rem_p_down}, down剩余货物: {rem_f_down}\n")
+        f.write(f"  系统服务乘客: {total_served_p}\n")
+        f.write(f"  系统服务货物: {total_served_f}\n")
 
-        # --- 保留原有的系统总剩余和失败记录 ---
-        f.write(f"   系统剩余乘客: {simulation_results['remaining_passengers']}\n")
-        f.write(f"   系统剩余货物: {simulation_results['remaining_freights']}\n")
-        f.write(f"   失败记录数: {len(simulation_results['failure_records'])}\n\n")
-        # f.write("📊 基本性能指标:\n")
-        # f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
-        # f.write(f"  剩余乘客: {simulation_results['remaining_passengers']}\n")
-        # f.write(f"  剩余货物: {simulation_results['remaining_freights']}\n")
-        # f.write(f"  失败记录数: {len(simulation_results['failure_records'])}\n\n")
+        f.write(f"  系统总剩余乘客: {simulation_results.get('remaining_passengers', '未知')}\n")
+        f.write(f"  系统总剩余货物: {simulation_results.get('remaining_freights', '未知')}\n")
 
-        # 车辆配置统计
+        # failure_records = simulation_results.get('failure_records', [])
+        # f.write(f"  仿真失败记录数: {len(failure_records)}\n\n")
+
+        # --- 2. 成本详细分解 (!! 错误修复 !!) ---
+        f.write("💰 成本详细分解:\n")
+        # (错误修复：这里使用 cost_components, 而不是 cost_history)
+        cost_comp = simulation_results.get('cost_components')
+        if cost_comp:
+            f.write(f"  MAV能量消耗: {cost_comp.get('mav_transport_cost', 0):.2f}\n")
+            f.write(f"  总等待成本: {cost_comp.get('waiting_cost', 0):.2f}\n")
+            f.write(f"    - 乘客等待成本: {cost_comp.get('passenger_waiting_cost', 0):.2f}\n")
+            f.write(f"    - 货物等待成本: {cost_comp.get('freight_waiting_cost', 0):.2f}\n")
+            f.write(f"  惩罚成本: {cost_comp.get('unserved_penalty_cost', 0):.2f}\n")
+            f.write(f"    - 乘客未服务惩罚: {cost_comp.get('unserved_passengers', 0):.2f}\n")
+            f.write(f"    - 货物未服务惩罚: {cost_comp.get('unserved_freights', 0):.2f}\n\n")
+        else:
+            f.write("  (未找到详细的成本分解 'cost_components')\n\n")
+
+        # --- 3. 车辆配置统计 ---
         f.write("🚌 车辆配置统计:\n")
+        total_p_modules = 0
+        total_f_modules = 0
 
         for direction in ['up', 'down']:
             direction_name = "上行" if direction == "up" else "下行"
@@ -431,52 +620,212 @@ def generate_summary_report(best_individual, simulation_results, filepath):
             initial_allocation = best_individual[direction]['initial_allocation']
 
             total_vehicles = len(vehicle_dispatch)
-            total_passenger_modules = sum(alloc['passenger_modules'] for alloc in initial_allocation.values())
-            total_freight_modules = sum(alloc['freight_modules'] for alloc in initial_allocation.values())
+            dir_passenger_modules = sum(alloc['passenger_modules'] for alloc in initial_allocation.values())
+            dir_freight_modules = sum(alloc['freight_modules'] for alloc in initial_allocation.values())
+            total_p_modules += dir_passenger_modules
+            total_f_modules += dir_freight_modules
 
             f.write(f"    车辆数量: {total_vehicles}\n")
-            f.write(f"    总乘客模块: {total_passenger_modules}\n")
-            f.write(f"    总货运模块: {total_freight_modules}\n")
-            f.write(f"    总模块数: {total_passenger_modules + total_freight_modules}\n")
+            f.write(f"    总乘客模块: {dir_passenger_modules}\n")
+            f.write(f"    总货运模块: {dir_freight_modules}\n")
+            f.write(f"    总模块数: {dir_passenger_modules + dir_freight_modules}\n")
 
-            # 车头时距统计
+            # 计算车头时距
             headways = [dispatch['headway'] for dispatch in vehicle_dispatch.values()]
-            f.write(f"    车头时距范围: {min(headways):.1f} - {max(headways):.1f} 分钟\n")
-            f.write(f"    平均车头时距: {sum(headways)/len(headways):.1f} 分钟\n")
+            if headways:
+                f.write(f"    车头时距范围: {min(headways):.1f} - {max(headways):.1f} 分钟\n")
+                f.write(f"    平均车头时距: {sum(headways) / len(headways):.1f} 分钟\n")
+            else:
+                f.write("    (无车辆发车)\n")
 
-        # 详细车辆信息
-        f.write("\n🚗 详细车辆信息:\n")
+        f.write(f"\n  系统总计:\n")
+        f.write(f"    总乘客模块: {total_p_modules}\n")
+        f.write(f"    总货运模块: {total_f_modules}\n")
+        f.write(f"    总模块数 (初始): {total_p_modules + total_f_modules}\n\n")
+
+        # --- 4. 详细车辆信息 ---
+        f.write("🚗 详细车辆信息:\n")
         for direction in ['up', 'down']:
             direction_name = "上行" if direction == "up" else "下行"
             f.write(f"\n  {direction_name}方向车辆:\n")
 
+            if not best_individual[direction]['vehicle_dispatch']:
+                f.write("    (无车辆)\n")
+                continue
+
             for vid, dispatch_info in best_individual[direction]['vehicle_dispatch'].items():
                 allocation = best_individual[direction]['initial_allocation'][vid]
                 f.write(f"    车辆{vid}: 发车时间={dispatch_info['arrival_time']}分钟, "
-                       f"车头时距={dispatch_info['headway']}分钟, "
-                       f"乘客模块={allocation['passenger_modules']}, "
-                       f"货运模块={allocation['freight_modules']}\n")
+                        f"车头时距={dispatch_info['headway']}分钟, "
+                        f"乘客模块={allocation['passenger_modules']}, "
+                        f"货运模块={allocation['freight_modules']}\n")
 
-        # 如果有进化历史，添加进化信息
-        if simulation_results['logbook']:
+        # --- 5. 模块调整总结 (新增逻辑) ---
+        f.write(f"\n🔄 模块调整总结 (如果启用):\n")
+        adjustment_found = False
+        for direction in ['up', 'down']:
+            direction_name = "上行" if direction == "up" else "下行"
+            # 检查 'module_adjustments' 是否存在且不为空
+            if 'module_adjustments' in best_individual[direction] and best_individual[direction]['module_adjustments']:
+                adjustment_found = True
+                f.write(f"  {direction_name}方向:\n")
+                # (假设 module_adjustments 是一个列表，内容可以被打印)
+                for adj_rule in best_individual[direction]['module_adjustments']:
+                    f.write(f"    - 规则: {adj_rule}\n")
+            else:
+                f.write(f"  {direction_name}方向: (无调整规则)\n")
+
+        if not adjustment_found:
+            f.write("  (未启用或未生成模块调整规则)\n")
+
+        # --- 6. 进化过程 ---
+        if simulation_results.get('logbook'):
             f.write(f"\n📈 进化过程:\n")
-            f.write(f"  总代数: {len(simulation_results['logbook'])}\n")
+            logbook = simulation_results['logbook']
+            f.write(f"  总代数: {len(logbook)}\n")  # (logbook 长度是 N+1, 包含第0代)
 
-            first_gen = simulation_results['logbook'][0]
-            last_gen = simulation_results['logbook'][-1]
+            first_gen = logbook[0]
+            last_gen = logbook[-1]
 
-            f.write(f"  初始代最佳适应度: {first_gen['min']:.6f}\n")
-            f.write(f"  最终代最佳适应度: {last_gen['min']:.6f}\n")
-            f.write(f"  改进幅度: {((first_gen['min'] - last_gen['min']) / first_gen['min'] * 100):.2f}%\n")
+            # 使用 .get 和类型转换来确保安全
+            try:
+                first_min_str = first_gen.get('min', 'N/A')
+                last_min_str = last_gen.get('min', 'N/A')
 
-            # ==================== 新增：写入收敛信息 ====================
+                f.write(f"  初始代最佳适应度: {float(first_min_str):.6f}\n")
+                f.write(f"  最终代最佳适应度: {float(last_min_str):.6f}\n")
+
+                initial_min = float(first_min_str)
+                final_min = float(last_min_str)
+
+                if initial_min > 0:  # 避免除以零
+                    improvement = ((initial_min - final_min) / initial_min * 100)
+                    f.write(f"  改进幅度: {improvement:.2f}%\n")
+                else:
+                    f.write("  改进幅度: N/A (初始成本为0)\n")
+            except (ValueError, TypeError):
+                f.write(f"  初始代最佳适应度: {first_min_str}\n")
+                f.write(f"  最终代最佳适应度: {last_min_str}\n")
+                f.write("  改进幅度: N/A (数据格式错误)\n")
+
+            # --- 写入收敛信息 ---
             convergence_gen = simulation_results.get('convergence_generation')
             if convergence_gen is not None:
                 f.write(f"  收敛状态: 在第 {convergence_gen} 代提前停止 (已收敛)\n")
             else:
-                total_run = len(simulation_results['logbook']) - 1
+                total_run = len(logbook) - 1  # 实际运行的代数
                 f.write(f"  收敛状态: 运行至最大代数 {total_run} (未提前停止)\n")
-            # ==========================================================
+        else:
+            f.write(f"\n📈 进化过程: (无 Logbook 信息)\n")
 
-            # (原有的代码)
-        f.write("\n🚗 详细车辆信息:\n")
+        # (清除了之前发现的重复行 "详细车辆信息")
+        f.write("\n" + "=" * 60 + "\n")
+        f.write("报告结束\n")
+        f.write("=" * 60 + "\n")
+
+# def generate_summary_report(best_individual, simulation_results, filepath):
+#     """生成总结报告"""
+#     with open(filepath, 'w', encoding='utf-8') as f:
+#         f.write("="*60 + "\n")
+#         f.write("🏆 最佳调度方案总结报告\n")
+#         f.write("="*60 + "\n\n")
+#
+#         # # 基本信息
+#         # (这是替换后的新代码块)
+#         f.write("📊 基本性能指标:\n")
+#         f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+#
+#         f.write(f"  总成本: {simulation_results['cost_history']['fitness']:.2f}\n")
+#
+#         f.write(f"  MAV能量消耗: {simulation_results['cost_history']['mav_transport']:.2f}\n")
+#         f.write(f"  总等待成本: {simulation_results['cost_history']['waiting_time_cost']:.2f}\n")
+#         f.write(f"  乘客等待成本: {simulation_results['cost_history']['passenger_waiting']:.2f}\n")
+#         f.write(f"  货物等待成本: {simulation_results['cost_history']['freight_waiting']:.2f}\n")
+#         f.write(f"  惩罚成本: {simulation_results['cost_history']['unserved_penalty_cost']:.2f}\n")
+#         f.write(f"  乘客未服务: {simulation_results['cost_history']['unserved_passenger']:.2f}\n")
+#         f.write(f"  货物未服务: {simulation_results['cost_history']['unserved_freight']:.2f}\n")
+#
+#         # --- 从 simulation_results 中获取新数据 ---
+#         # (使用 .get() 方法，如果键不存在则返回 '未知'，确保安全)
+#         total_served_p = simulation_results.get('total_served_passengers', '未知')
+#         total_served_f = simulation_results.get('total_served_freight', '未知')
+#         rem_p_up = simulation_results.get('remaining_passengers_up', '未知')
+#         rem_p_down = simulation_results.get('remaining_passengers_down', '未知')
+#         rem_f_up = simulation_results.get('remaining_freights_up', '未知')
+#         rem_f_down = simulation_results.get('remaining_freights_down', '未知')
+#
+#         # --- 按照您要求的格式写入文件 ---
+#         f.write(f"   系统服务乘客: {total_served_p}, 系统服务货物: {total_served_f}\n")
+#         f.write(f"   up剩余乘客: {rem_p_up}, up剩余货物: {rem_f_up}\n")
+#         f.write(f"   down剩余乘客: {rem_p_down}, down剩余货物: {rem_f_down}\n")
+#
+#         # --- 保留原有的系统总剩余和失败记录 ---
+#         f.write(f"   系统剩余乘客: {simulation_results['remaining_passengers']}\n")
+#         f.write(f"   系统剩余货物: {simulation_results['remaining_freights']}\n")
+#         f.write(f"   失败记录数: {len(simulation_results['failure_records'])}\n\n")
+#         # f.write("📊 基本性能指标:\n")
+#         # f.write(f"  总成本: {simulation_results['total_cost']:.2f}\n")
+#         # f.write(f"  剩余乘客: {simulation_results['remaining_passengers']}\n")
+#         # f.write(f"  剩余货物: {simulation_results['remaining_freights']}\n")
+#         # f.write(f"  失败记录数: {len(simulation_results['failure_records'])}\n\n")
+#
+#         # 车辆配置统计
+#         f.write("🚌 车辆配置统计:\n")
+#
+#         for direction in ['up', 'down']:
+#             direction_name = "上行" if direction == "up" else "下行"
+#             f.write(f"\n  {direction_name}方向:\n")
+#
+#             vehicle_dispatch = best_individual[direction]['vehicle_dispatch']
+#             initial_allocation = best_individual[direction]['initial_allocation']
+#
+#             total_vehicles = len(vehicle_dispatch)
+#             total_passenger_modules = sum(alloc['passenger_modules'] for alloc in initial_allocation.values())
+#             total_freight_modules = sum(alloc['freight_modules'] for alloc in initial_allocation.values())
+#
+#             f.write(f"    车辆数量: {total_vehicles}\n")
+#             f.write(f"    总乘客模块: {total_passenger_modules}\n")
+#             f.write(f"    总货运模块: {total_freight_modules}\n")
+#             f.write(f"    总模块数: {total_passenger_modules + total_freight_modules}\n")
+#
+#             # 车头时距统计
+#             headways = [dispatch['headway'] for dispatch in vehicle_dispatch.values()]
+#             f.write(f"    车头时距范围: {min(headways):.1f} - {max(headways):.1f} 分钟\n")
+#             f.write(f"    平均车头时距: {sum(headways)/len(headways):.1f} 分钟\n")
+#
+#         # 详细车辆信息
+#         f.write("\n🚗 详细车辆信息:\n")
+#         for direction in ['up', 'down']:
+#             direction_name = "上行" if direction == "up" else "下行"
+#             f.write(f"\n  {direction_name}方向车辆:\n")
+#
+#             for vid, dispatch_info in best_individual[direction]['vehicle_dispatch'].items():
+#                 allocation = best_individual[direction]['initial_allocation'][vid]
+#                 f.write(f"    车辆{vid}: 发车时间={dispatch_info['arrival_time']}分钟, "
+#                        f"车头时距={dispatch_info['headway']}分钟, "
+#                        f"乘客模块={allocation['passenger_modules']}, "
+#                        f"货运模块={allocation['freight_modules']}\n")
+#
+#         # 如果有进化历史，添加进化信息
+#         if simulation_results['logbook']:
+#             f.write(f"\n📈 进化过程:\n")
+#             f.write(f"  总代数: {len(simulation_results['logbook'])}\n")
+#
+#             first_gen = simulation_results['logbook'][0]
+#             last_gen = simulation_results['logbook'][-1]
+#
+#             f.write(f"  初始代最佳适应度: {first_gen['min']:.6f}\n")
+#             f.write(f"  最终代最佳适应度: {last_gen['min']:.6f}\n")
+#             f.write(f"  改进幅度: {((first_gen['min'] - last_gen['min']) / first_gen['min'] * 100):.2f}%\n")
+#
+#             # ==================== 新增：写入收敛信息 ====================
+#             convergence_gen = simulation_results.get('convergence_generation')
+#             if convergence_gen is not None:
+#                 f.write(f"  收敛状态: 在第 {convergence_gen} 代提前停止 (已收敛)\n")
+#             else:
+#                 total_run = len(simulation_results['logbook']) - 1
+#                 f.write(f"  收敛状态: 运行至最大代数 {total_run} (未提前停止)\n")
+#             # ==========================================================
+#
+#             # (原有的代码)
+#         f.write("\n🚗 详细车辆信息:\n")
